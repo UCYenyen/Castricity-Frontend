@@ -1,7 +1,9 @@
-import React from 'react'
+import { DashboardView } from "@/components/features/dashboard/dashboard-view";
 
-export default function page() {
-  return (
-    <div>page</div>
-  )
+export const metadata = {
+  title: "Castricity — Operations Dashboard",
+};
+
+export default function DashboardPage() {
+  return <DashboardView />;
 }

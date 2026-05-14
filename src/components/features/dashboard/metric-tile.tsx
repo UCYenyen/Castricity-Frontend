@@ -52,19 +52,20 @@ export function MetricTile({
       className="relative overflow-hidden rounded-xl border border-border bg-linear-to-b from-card/70 to-popover/70 px-5 py-4.5"
       style={{ minHeight: hero ? 168 : 148 }}
     >
-      {corner && (
-        <div className="mono absolute right-3.5 top-3.5 text-[10px] tracking-[0.12em] text-text-faint">
-          {corner}
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+        <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+          {label}
         </div>
-      )}
-      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-        {label}
+        {corner && (
+          <div className="mono mt-0.5 text-right text-[10px] tracking-[0.12em] text-text-faint">
+            {corner}
+          </div>
+        )}
       </div>
-      <div className="mt-1.5 flex items-baseline gap-2 leading-none">
+      <div className="mt-1.5 flex flex-wrap items-baseline gap-2 leading-none">
         <span
-          className="mono font-bold"
+          className={`mono font-bold ${hero ? 'text-[44px] sm:text-[64px]' : 'text-[36px] sm:text-[44px]'}`}
           style={{
-            fontSize: hero ? 64 : 44,
             letterSpacing: "-0.01em",
             ...(hero
               ? {

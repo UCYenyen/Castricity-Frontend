@@ -204,7 +204,7 @@ export function AnomalyCenterView() {
                       <TableCell className="font-medium">{a.title}</TableCell>
                       <TableCell className="hidden md:table-cell text-text-secondary">{a.asset}</TableCell>
                       <TableCell className="hidden md:table-cell mono text-text-muted">
-                        {fmtTime(a.point.t, { withDate: true })}
+                        {fmtTime(a.point.t, { withDate: true, withYear: true })}
                       </TableCell>
                       <TableCell
                         className={`text-right mono ${delta >= 0 ? "text-accent-red" : "text-accent-green"}`}
@@ -269,7 +269,7 @@ export function AnomalyCenterView() {
                   <DialogTitle className="text-sm">{selected.title}</DialogTitle>
                 </div>
                 <DialogDescription className="mono text-[11px] text-text-muted">
-                  {fmtTime(selected.point.t, { withDate: true })} · {selected.asset}
+                  {fmtTime(selected.point.t, { withDate: true, withYear: true })} · {selected.asset}
                 </DialogDescription>
               </DialogHeader>
 

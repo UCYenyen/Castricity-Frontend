@@ -25,14 +25,16 @@ export function Navbar() {
               Castricity
             </div>
             <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground leading-tight">
-              Forecast Electricity
+              Prakiraan Listrik Cerdas
             </div>
           </div>
         </div>
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-          <Link href="#features" className="hover:text-foreground transition-colors">Features</Link>
+          <Link href="#problem" className="hover:text-foreground transition-colors">Tantangan</Link>
           <Link href="#how-it-works" className="hover:text-foreground transition-colors">Cara Kerja</Link>
+          <Link href="#features" className="hover:text-foreground transition-colors">Kemampuan</Link>
+          <Link href="#performance" className="hover:text-foreground transition-colors">Hasil</Link>
         </div>
 
         <div className="flex items-center gap-4">
@@ -41,7 +43,7 @@ export function Navbar() {
           ) : isAuthed ? (
             <Link href="/dashboard">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                Pergi Dashboard
+                Buka Dashboard
               </Button>
             </Link>
           ) : (

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Castricity — Explainable AI for Electricity Demand Forecasting</title>
+<meta name="description" content="Indonesia's First Explainable AI Platform for National Electricity Demand Forecasting. Powered by Hybrid Prophet + LightGBM + SHAP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0A1628;--surface:#0F2240;--cyan:#00D4FF;--amber:#FFB800;--white:#FFFFFF;--gray:#B0C4DE;--card:#122a4e;--font-body:'Inter',sans-serif;--font-head:'Space Grotesk',sans-serif}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--white);line-height:1.6;overflow-x:hidden}
+h1,h2,h3,h4{font-family:var(--font-head);font-weight:700}
+a{color:var(--cyan);text-decoration:none}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+section{padding:100px 0}
+.section-label{color:var(--cyan);font-size:.875rem;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.section-title{font-size:clamp(1.8rem,4vw,2.8rem);margin-bottom:16px}
+.section-sub{color:var(--gray);max-width:640px;margin:0 auto 48px;font-size:1.05rem}
+.text-center{text-align:center}
+/* NAVBAR */
+.nav{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:16px 0;transition:all .3s}
+.nav.scrolled{background:rgba(10,22,40,.85);backdrop-filter:blur(12px);box-shadow:0 2px 24px rgba(0,0,0,.3)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:var(--font-head);font-size:1.5rem;font-weight:700;color:var(--white);text-shadow:0 0 20px rgba(0,212,255,.5)}
+.logo span{color:var(--cyan)}
+.nav-links{display:flex;gap:28px;align-items:center;list-style:none}
+.nav-links a{color:var(--gray);font-size:.9rem;transition:color .2s}
+.nav-links a:hover{color:var(--cyan)}
+.btn{display:inline-block;padding:10px 24px;border-radius:8px;font-weight:600;font-size:.9rem;transition:all .3s;cursor:pointer;border:none;font-family:var(--font-body)}
+.btn-cyan{background:var(--cyan);color:var(--bg);box-shadow:0 0 20px rgba(0,212,255,.3)}
+.btn-cyan:hover{box-shadow:0 0 40px rgba(0,212,255,.6);transform:translateY(-2px)}
+.btn-outline{border:1.5px solid var(--cyan);color:var(--cyan);background:transparent}
+.btn-outline:hover{background:rgba(0,212,255,.1);transform:translateY(-2px)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none}
+.hamburger span{width:24px;height:2px;background:var(--white);transition:all .3s}
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;padding-top:80px}
+.hero-bg{position:absolute;inset:0;overflow:hidden}
+.grid-line{position:absolute;background:rgba(0,212,255,.06);animation:drift 20s linear infinite}
+.grid-line.h{width:200%;height:1px;left:-50%}
+.grid-line.v{height:200%;width:1px;top:-50%}
+@keyframes drift{0%{transform:translate(0,0)}100%{transform:translate(40px,40px)}}
+.hero-content{position:relative;z-index:2;text-align:center}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);letter-spacing:-1px;margin-bottom:20px;background:linear-gradient(135deg,var(--white),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--gray);font-size:clamp(1rem,2vw,1.2rem);max-width:680px;margin:0 auto 36px}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.stats-strip{display:flex;justify-content:center;flex-wrap:wrap;gap:32px;margin-top:64px;padding:24px;background:rgba(15,34,64,.6);border:1px solid rgba(0,212,255,.15);border-radius:12px}
+.stat-item{text-align:center;min-width:140px}
+.stat-val{font-family:var(--font-head);font-size:1.5rem;color:var(--cyan);font-weight:700}
+.stat-lbl{font-size:.8rem;color:var(--gray);margin-top:2px}
+/* CARDS */
+.card{background:var(--card);border:1px solid rgba(0,212,255,.1);border-radius:12px;padding:32px;transition:all .3s}
+.card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,.4);border-color:rgba(0,212,255,.25)}
+.card-icon{font-size:2rem;margin-bottom:16px}
+.card h3{font-size:1.15rem;margin-bottom:10px}
+.card p{color:var(--gray);font-size:.95rem}
+.problem-card{border-left:3px solid var(--cyan)}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.grid-2x3{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+/* STEPS */
+.steps{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-bottom:48px}
+.step{flex:1;min-width:260px;max-width:360px;background:var(--card);border-radius:12px;padding:32px;position:relative;border:1px solid rgba(0,212,255,.1)}
+.step-num{position:absolute;top:-16px;left:24px;background:var(--cyan);color:var(--bg);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--font-head)}
+.step h3{margin-top:8px;margin-bottom:10px}
+.step p{color:var(--gray);font-size:.93rem}
+.step-connector{display:flex;align-items:center;color:var(--cyan);font-size:1.5rem;padding-top:16px}
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;margin-bottom:48px}
+.metric-card{background:var(--card);border-radius:12px;padding:28px;text-align:center;border:1px solid rgba(0,212,255,.1)}
+.metric-val{font-family:var(--font-head);font-size:2.2rem;color:var(--cyan);font-weight:700}
+.metric-lbl{color:var(--gray);font-size:.85rem;margin-top:6px}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden}
+th{background:rgba(0,212,255,.1);padding:14px 20px;text-align:left;font-family:var(--font-head);font-size:.9rem;color:var(--cyan)}
+td{padding:14px 20px;border-top:1px solid rgba(0,212,255,.08);color:var(--gray);font-size:.95rem}
+td strong{color:var(--cyan)}
+.table-wrap{border-radius:12px;overflow:hidden;border:1px solid rgba(0,212,255,.1);max-width:720px;margin:0 auto}
+/* TECH */
+.badge-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:48px}
+.badge{background:var(--card);border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:10px 20px;font-family:var(--font-head);font-size:.9rem;color:var(--gray);transition:all .3s}
+.badge:hover{border-color:var(--cyan);color:var(--cyan)}
+.pipeline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:32px;background:var(--card);border-radius:12px;border:1px solid rgba(0,212,255,.1)}
+.pipe-node{background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:10px 16px;font-size:.85rem;color:var(--white);font-family:var(--font-head)}
+.pipe-arrow{color:var(--cyan);font-size:1.2rem}
+/* CTA BANNER */
+.cta-banner{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,212,255,.02));border-top:1px solid rgba(0,212,255,.15);border-bottom:1px solid rgba(0,212,255,.15);text-align:center;padding:80px 24px}
+.cta-banner h2{font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:16px}
+.cta-banner p{color:var(--gray);margin-bottom:32px;max-width:560px;margin-left:auto;margin-right:auto}
+.cta-banner .btn{margin:0 8px}
+/* FOOTER */
+footer{padding:48px 24px;text-align:center;border-top:1px solid rgba(0,212,255,.1);color:var(--gray);font-size:.85rem}
+footer .logo{margin-bottom:8px;display:inline-block}
+footer p{margin:4px 0}
+footer a{color:var(--cyan)}
+/* ANIMATIONS */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s,transform .7s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,212,255,.3)}50%{box-shadow:0 0 40px rgba(0,212,255,.6)}}
+.glow-pulse{animation:glow 3s ease-in-out infinite}
+/* MOBILE */
+@media(max-width:768px){
+.nav-links{display:none;position:absolute;top:60px;left:0;width:100%;background:rgba(10,22,40,.95);flex-direction:column;padding:24px;gap:16px;backdrop-filter:blur(12px)}
+.nav-links.open{display:flex}
+.hamburger{display:flex}
+.stats-strip{gap:16px}
+.stat-item{min-width:120px}
+.step-connector{display:none}
+.steps{flex-direction:column;align-items:center}
+section{padding:60px 0}
+}
+</style>
+</head>
+<body>
+<!-- NAVBAR -->
+<nav class="nav" id="navbar" aria-label="Main navigation">
+<div class="container nav-inner">
+<a href="#" class="logo" aria-label="Castricity Home"><span>⚡</span> Castricity</a>
+<button class="hamburger" id="menuBtn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+<ul class="nav-links" id="navLinks">
+<li><a href="#features">Features</a></li>
+<li><a href="#performance">Performance</a></li>
+<li><a href="#tech">Tech</a></li>
+<li><a href="https://github.com/UCYenyen/Castricity-Frontend.git" target="_blank">GitHub</a></li>
+<li><a href="#cta" class="btn btn-cyan" aria-label="Request a demo">Request Demo</a></li>
+</ul>
+</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+<div class="hero-bg" id="heroBg"></div>
+<div class="container hero-content">
+<p class="section-label">FindIT! 2026 — The Explainable Oracle</p>
+<h1>Predict. Explain. Decide.</h1>
+<p>Castricity is Indonesia's most transparent electricity demand forecasting platform — powered by a Hybrid Prophet + LightGBM AI engine, with full SHAP explainability on every prediction.</p>
+<div class="hero-btns">
+<a href="#how" class="btn btn-cyan glow-pulse" aria-label="See how it works">How It Works</a>
+<a href="https://github.com/UCYenyen/Castricity-Frontend.git" target="_blank" class="btn btn-outline" aria-label="View on GitHub">View on GitHub</a>
+</div>
+<div class="stats-strip reveal">
+<div class="stat-item"><div class="stat-val" data-target="1.52" data-suffix="%" data-decimal="2">0</div><div class="stat-lbl">MAPE on Test Set</div></div>
+<div class="stat-item"><div class="stat-val" data-target="18" data-suffix="">0</div><div class="stat-lbl">Predictive Features</div></div>
+<div class="stat-item"><div class="stat-val" data-target="38" data-suffix="">0</div><div class="stat-lbl">Provinces (Roadmap)</div></div>
+<div class="stat-item"><div class="stat-val" data-target="100" data-suffix="%">0</div><div class="stat-lbl">Offline — No Cloud</div></div>
+</div>
+</div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+<div class="container">
+<div class="text-center reveal"><p class="section-label">Why This Matters</p><h2 class="section-title">The Hidden Crisis in Grid Management</h2></div>
+<div class="grid-3">
+<div class="card problem-card reveal"><div class="card-icon">⚡</div><h3>Blackout Risk</h3><p>The Aug 4, 2019 blackout hit 100M+ people and caused Rp822.98 billion in losses — a direct consequence of inaccurate demand forecasting.</p></div>
+<div class="card problem-card reveal"><div class="card-icon">🔲</div><h3>Black-Box Predictions</h3><p>Existing AI tools produce numbers without explanations — unacceptable for trillion-rupiah infrastructure decisions.</p></div>
+<div class="card problem-card reveal"><div class="card-icon">📈</div><h3>Explosive Demand Growth</h3><p>Indonesia's electricity demand is projected to grow from 306 TWh (2024) to 511 TWh by 2034. Conventional forecasting cannot keep pace.</p></div>
+</div>
+</div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+<div class="container">
+<div class="text-center reveal"><p class="section-label">The Explainable Oracle Approach</p><h2 class="section-title">How Castricity Works</h2></div>
+<div class="steps">
+<div class="step reveal"><div class="step-num">1</div><h3>Ingest</h3><p>Multi-source data fusion: BPS statistics, BMKG/Kaggle weather, World Bank macroeconomics, and national holiday calendars.</p></div>
+<div class="step-connector reveal">→</div>
+<div class="step reveal"><div class="step-num">2</div><h3>Forecast</h3><p>Hybrid Trinity: Prophet captures temporal seasonality baseline, then LightGBM corrects residuals using 18 engineered features.</p></div>
+<div class="step-connector reveal">→</div>
+<div class="step reveal"><div class="step-num">3</div><h3>Explain</h3><p>SHAP TreeExplainer generates Top-3 human-readable contributing factors per prediction, displayed in Bahasa Indonesia.</p></div>
+</div>
+</div>
+</section>
+
+<!-- PERFORMANCE -->
+<section id="performance">
+<div class="container">
+<div class="text-center reveal"><p class="section-label">Proven Results</p><h2 class="section-title">Accuracy That Earns Trust</h2></div>
+<div class="metrics-grid">
+<div class="metric-card reveal"><div class="metric-val" data-target="1.52" data-suffix="%" data-decimal="2">0</div><div class="metric-lbl">MAPE (Test Set)</div></div>
+<div class="metric-card reveal"><div class="metric-val" data-target="11271" data-suffix=" MWh" data-comma="1">0</div><div class="metric-lbl">MAE — Hybrid</div></div>
+<div class="metric-card reveal"><div class="metric-val" data-target="14306" data-suffix=" MWh" data-comma="1">0</div><div class="metric-lbl">RMSE — Hybrid</div></div>
+<div class="metric-card reveal"><div class="metric-val" data-target="2" data-prefix="<" data-suffix="s">0</div><div class="metric-lbl">Inference on CPU</div></div>
+</div>
+<div class="table-wrap reveal">
+<table>
+<thead><tr><th>Metric</th><th>Prophet-Only</th><th>Castricity Hybrid</th></tr></thead>
+<tbody>
+<tr><td>MAE (MWh)</td><td>12,020.56</td><td><strong>11,270.99</strong></td></tr>
+<tr><td>RMSE (MWh)</td><td>15,960.31</td><td><strong>14,305.88</strong></td></tr>
+<tr><td>MAPE</td><td>1.66%</td><td><strong>1.52%</strong></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+<div class="container">
+<div class="text-center reveal"><p class="section-label">Capabilities</p><h2 class="section-title">Built for Operators. Trusted by Decision-Makers.</h2></div>
+<div class="grid-2x3">
+<div class="card reveal"><div class="card-icon">🔮</div><h3>Hybrid AI Engine</h3><p>Prophet captures temporal seasonality; LightGBM corrects residuals using weather, lag, and calendar features.</p></div>
+<div class="card reveal"><div class="card-icon">🔍</div><h3>SHAP Explainability</h3><p>Every prediction comes with Top-3 contributing factors, quantified in MWh, with direction indicators.</p></div>
+<div class="card reveal"><div class="card-icon">🛡️</div><h3>Anomaly Detection</h3><p>Isolation Forest flags abnormal input data before prediction, preventing decisions based on corrupt readings.</p></div>
+<div class="card reveal"><div class="card-icon">🗺️</div><h3>What-If Simulator</h3><p>Simulate impact of temperature extremes, rainfall, and national holidays on electricity demand in real-time.</p></div>
+<div class="card reveal"><div class="card-icon">🔌</div><h3>100% Offline</h3><p>All models run locally (.joblib). No OpenAI, AWS, or GCP. Full digital sovereignty for critical infrastructure.</p></div>
+<div class="card reveal"><div class="card-icon">⚡</div><h3>Zero Data Leakage</h3><p>Chronological 70/15/15 split, KNNImputer fit-only-on-train, per-split feature engineering — guaranteed integrity.</p></div>
+</div>
+</div>
+</section>
+
+<!-- TECH STACK -->
+<section id="tech">
+<div class="container">
+<div class="text-center reveal"><p class="section-label">Under the Hood</p><h2 class="section-title">Transparent by Design, Powerful by Architecture</h2></div>
+<div class="badge-row reveal">
+<div class="badge">🔮 Prophet</div><div class="badge">🌳 LightGBM</div><div class="badge">📊 SHAP</div><div class="badge">🧪 scikit-learn</div><div class="badge">⚡ FastAPI</div><div class="badge">▲ Next.js</div><div class="badge">🎯 Optuna</div><div class="badge">🐼 Pandas</div><div class="badge">🐍 Python</div>
+</div>
+<div class="pipeline reveal">
+<div class="pipe-node">📥 Data Sources</div><span class="pipe-arrow">→</span>
+<div class="pipe-node">🔧 KNN Imputer</div><span class="pipe-arrow">→</span>
+<div class="pipe-node">⚙️ Feature Eng.</div><span class="pipe-arrow">→</span>
+<div class="pipe-node" style="border-color:var(--cyan)">🔮 Prophet + 🌳 LightGBM</div><span class="pipe-arrow">→</span>
+<div class="pipe-node">🛡️ Isolation Forest</div><span class="pipe-arrow">→</span>
+<div class="pipe-node">📊 SHAP Explainer</div><span class="pipe-arrow">→</span>
+<div class="pipe-node" style="border-color:var(--amber)">📱 Dashboard</div>
+</div>
+</div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner" id="cta">
+<div class="reveal">
+<h2>Ready to Transform Indonesia's Grid Intelligence?</h2>
+<p>Castricity is offline-ready, explainable, and built for the realities of Indonesian energy infrastructure.</p>
+<div>
+<a href="https://github.com/UCYenyen/Castricity-Frontend.git" target="_blank" class="btn btn-cyan" aria-label="Explore GitHub repository">GitHub Repo</a>
+<a href="#" class="btn btn-outline" aria-label="Download technical proposal">Technical Proposal</a>
+</div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+<a href="#" class="logo"><span>⚡</span> Castricity</a>
+<p>Forecast the Future. Explain Every Watt.</p>
+<p style="margin-top:12px">Team Nekat Aja &nbsp;|&nbsp; <a href="https://github.com/UCYenyen/Castricity-Frontend.git" target="_blank">GitHub</a> &nbsp;|&nbsp; FindIT! 2026 — Track C: The Explainable Oracle</p>
+<p style="margin-top:12px;opacity:.6">&copy; 2026 Castricity. Built for a smarter, transparent energy future.</p>
+</footer>
+
+<script>
+// Navbar scroll
+const nav=document.getElementById('navbar');
+window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>50)});
+// Mobile menu
+const menuBtn=document.getElementById('menuBtn'),navLinks=document.getElementById('navLinks');
+menuBtn.addEventListener('click',()=>{navLinks.classList.toggle('open')});
+navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>navLinks.classList.remove('open')));
+// Hero animated grid lines
+(function(){const bg=document.getElementById('heroBg');for(let i=0;i<12;i++){const line=document.createElement('div');line.className='grid-line '+(i%2===0?'h':'v');line.style.top=(Math.random()*100)+'%';line.style.left=(Math.random()*100)+'%';line.style.animationDuration=(15+Math.random()*20)+'s';line.style.animationDelay=(-Math.random()*10)+'s';bg.appendChild(line)}})();
+// Intersection Observer for reveals
+const revealObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');revealObs.unobserve(e.target)}})},{threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+// Animated counters
+let countersStarted=new Set();
+const counterObs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;if(countersStarted.has(el))return;countersStarted.add(el);
+const target=parseFloat(el.dataset.target),suffix=el.dataset.suffix||'',prefix=el.dataset.prefix||'',dec=parseInt(el.dataset.decimal)||0,useComma=el.dataset.comma==='1';
+let start=0;const dur=1500,step=16,steps=dur/step,inc=target/steps;
+const timer=setInterval(()=>{start+=inc;if(start>=target){start=target;clearInterval(timer)}
+let v=dec>0?start.toFixed(dec):Math.round(start).toString();
+if(useComma)v=Math.round(start).toLocaleString();
+el.textContent=prefix+v+suffix},step)})},{threshold:0.3});
+document.querySelectorAll('.metric-val,.stat-val').forEach(el=>counterObs.observe(el));
+</script>
+</body>
+</html>

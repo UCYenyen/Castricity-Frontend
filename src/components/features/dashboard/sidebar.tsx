@@ -45,14 +45,12 @@ const NAV: NavGroup[] = [
   {
     label: "Data",
     items: [
-      { id: "hist", label: "Historical data", icon: Archive, href:"/historical-data" },
       { id: "feat", label: "Feature drivers", icon: Workflow, href:"/feature-drivers" },
     ],
   },
   {
     label: "System",
     items: [
-      { id: "set", label: "Settings", href:"/settings",icon: Settings },
       { id: "doc", label: "Guidebook", href:"/guidebook" ,icon: BookOpen },
     ],
   },

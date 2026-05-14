@@ -51,15 +51,15 @@ export function useDashboardData({
       else setLoading(true);
       setError(null);
       try {
-        const end = new Date();
-        const start = new Date(end.getTime() - historyHours * 3_600_000);
-        const [history, future, anomalies, metrics] = await Promise.all([
-          getHistorical({ start: start.toISOString(), end: end.toISOString(), signal }),
+        const [historyAll, future, anomalies, metrics] = await Promise.all([
+          getHistorical({ signal }),
           getFuture({ days: futureDays, signal }),
           getAnomalies(signal),
           getMetrics(signal).catch(() => null),
         ]);
         if (signal.aborted) return;
+        const days = Math.max(1, Math.ceil(historyHours / 24));
+        const history = historyAll.slice(-days);
         setData({ history, future, anomalies, metrics });
       } catch (e) {
         if ((e as { name?: string }).name === "AbortError") return;

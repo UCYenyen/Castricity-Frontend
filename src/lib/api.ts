@@ -19,7 +19,6 @@ import type {
   Metrics,
 } from "@/types/dashboard";
 import type {
-  ApiAnomaly,
   ApiFeatureImportance,
   ApiFeatureInfo,
   ApiFeaturesResponse,
@@ -68,22 +67,29 @@ async function fetchJson<T>(
 }
 
 export async function getMetrics(signal?: AbortSignal): Promise<Metrics> {
-  return fetchJson("/metrics", apiMetricsSchema, { signal });
+  const raw = await fetchJson("/metrics", apiMetricsSchema, { signal });
+  return {
+    mae: raw.mae,
+    rmse: raw.rmse,
+    mape: raw.mape,
+    bias: 0,
+    hit: raw.r2,
+  };
 }
 
 export async function getHistorical(
   args: { start?: string; end?: string; signal?: AbortSignal } = {}
 ): Promise<HistoryPoint[]> {
   const qs = new URLSearchParams();
-  if (args.start) qs.set("start", args.start);
-  if (args.end) qs.set("end", args.end);
+  if (args.start) qs.set("start", args.start.slice(0, 10));
+  if (args.end) qs.set("end", args.end.slice(0, 10));
   const path = `/forecast/historical${qs.toString() ? `?${qs}` : ""}`;
   const raw = await fetchJson(path, apiHistoricalSchema, { signal: args.signal });
   return raw.map((p) => ({
-    t: new Date(p.t),
+    t: new Date(p.date),
     actual: p.actual,
     predicted: p.predicted,
-    anomaly: (p.anomaly ?? null) as HistoryPoint["anomaly"],
+    anomaly: null,
   }));
 }
 
@@ -97,10 +103,10 @@ export async function getFuture(
     { signal: args.signal }
   );
   return raw.map((p) => ({
-    t: new Date(p.t),
+    t: new Date(p.date),
     predicted: p.predicted,
-    p10: p.p10,
-    p90: p.p90,
+    p10: p.lower_bound,
+    p90: p.upper_bound,
   }));
 }
 
@@ -109,26 +115,40 @@ export async function getAnomalies(
 ): Promise<AnomalyEntry[]> {
   const raw = await fetchJson("/anomalies", apiAnomaliesSchema, { signal });
   const now = Date.now();
-  return raw.map((a: ApiAnomaly): AnomalyEntry => {
-    const t = new Date(a.t);
+  return raw.map((a): AnomalyEntry => {
+    const t = new Date(a.date);
     const ageMs = now - t.getTime();
+    const days = Math.round(Math.abs(ageMs) / 86_400_000);
     const inFuture = ageMs < 0;
-    const hours = Math.round(Math.abs(ageMs) / 3_600_000);
+    const dev = a.deviation_pct ?? 0;
+    const sign: -1 | 0 | 1 = dev > 0 ? 1 : dev < 0 ? -1 : 0;
+    const predicted = dev !== 0 ? a.value / (1 + dev / 100) : a.value;
+    const factors = [
+      {
+        k: "Deviation",
+        v: `${dev >= 0 ? "+" : ""}${dev.toFixed(2)}%`,
+        w: Math.min(1, Math.abs(dev) / 30),
+        sign,
+      },
+      ...(a.score != null
+        ? [{ k: "IF score", v: a.score.toFixed(4), w: Math.min(1, Math.abs(a.score) * 100), sign: -1 as const }]
+        : []),
+    ];
     const data: ExplainerData = {
-      title: a.title,
+      title: "Demand anomaly",
       sev: a.severity,
-      desc: a.description ?? "",
-      factors: a.factors,
+      desc: `Actual demand deviated ${dev >= 0 ? "above" : "below"} the model by ${Math.abs(dev).toFixed(2)}%.`,
+      factors,
     };
     return {
       sev: a.severity,
-      title: a.title,
-      asset: a.asset,
-      timeAgo: inFuture ? `in ${hours}h` : `${hours}h ago`,
+      title: "Demand anomaly",
+      asset: "National grid",
+      timeAgo: inFuture ? `in ${days}d` : `${days}d ago`,
       point: {
         t,
-        actual: a.actual,
-        predicted: a.predicted ?? a.actual ?? 0,
+        actual: a.value,
+        predicted,
         anomalyKey: null,
         data,
       },
@@ -140,13 +160,36 @@ export async function runWhatIf(
   payload: WhatIfPayloadInput,
   signal?: AbortSignal
 ): Promise<ApiWhatIfResult> {
-  const body = whatIfPayloadSchema.parse(payload);
-  return fetchJson("/forecast/whatif", apiWhatIfResultSchema, {
+  const body = whatIfPayloadSchema.parse({
+    ...payload,
+    target_date: payload.target_date.slice(0, 10),
+  });
+  const raw = await fetchJson("/forecast/whatif", apiWhatIfResultSchema, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
     signal,
   });
+
+  const maxAbs = Math.max(
+    1e-6,
+    ...raw.shap_contributions.map((c) => Math.abs(c.contribution))
+  );
+  const factors = [...raw.shap_contributions]
+    .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
+    .map((c) => ({
+      k: c.feature,
+      v: `${c.contribution >= 0 ? "+" : ""}${c.contribution.toFixed(0)} MW`,
+      w: Math.min(1, Math.abs(c.contribution) / maxAbs),
+      sign: (c.contribution > 0 ? 1 : c.contribution < 0 ? -1 : 0) as -1 | 0 | 1,
+    }));
+
+  return {
+    predicted: raw.predicted_mwh,
+    baseline: raw.prophet_baseline,
+    delta: raw.lgbm_residual,
+    factors,
+  };
 }
 
 export async function getFeatures(

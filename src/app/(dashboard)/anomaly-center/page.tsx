@@ -1,7 +1,10 @@
-import React from 'react'
+import { AnomalyCenterView } from "@/components/features/anomaly-center/anomaly-center-view";
 
-export default function page() {
-  return (
-    <div>page</div>
-  )
+export const metadata = {
+  title: "Castricity — Anomaly Center",
+  description: "All flagged anomalous demand points across the historical window.",
+};
+
+export default function AnomalyCenterPage() {
+  return <AnomalyCenterView />;
 }

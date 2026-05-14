@@ -9,19 +9,20 @@ const explainerFactorSchema = z.object({
 });
 
 export const apiHistoricalPointSchema = z.object({
-  t: z.string(),
+  date: z.string(),
   actual: z.number(),
   predicted: z.number(),
-  anomaly: z.string().nullish(),
+  prophet_baseline: z.number().optional(),
+  residual: z.number().optional(),
 });
 
 export const apiHistoricalSchema = z.array(apiHistoricalPointSchema);
 
 export const apiFuturePointSchema = z.object({
-  t: z.string(),
+  date: z.string(),
   predicted: z.number(),
-  p10: z.number(),
-  p90: z.number(),
+  lower_bound: z.number(),
+  upper_bound: z.number(),
 });
 
 export const apiFutureSchema = z.array(apiFuturePointSchema);
@@ -30,20 +31,16 @@ export const apiMetricsSchema = z.object({
   mae: z.number(),
   rmse: z.number(),
   mape: z.number(),
-  bias: z.number(),
-  hit: z.number(),
+  r2: z.number(),
+  n_samples: z.number(),
 });
 
 export const apiAnomalySchema = z.object({
-  id: z.string().optional(),
-  t: z.string(),
+  date: z.string(),
+  value: z.number(),
   severity: severitySchema,
-  title: z.string(),
-  asset: z.string(),
-  description: z.string().optional(),
-  predicted: z.number().optional(),
-  actual: z.number().optional(),
-  factors: z.array(explainerFactorSchema).default([]),
+  score: z.number().optional(),
+  deviation_pct: z.number().optional(),
 });
 
 export const apiAnomaliesSchema = z.array(apiAnomalySchema);
@@ -55,11 +52,19 @@ export const whatIfPayloadSchema = z.object({
   is_holiday: z.boolean(),
 });
 
+const shapContributionSchema = z.object({
+  feature: z.string(),
+  value: z.number(),
+  contribution: z.number(),
+});
+
 export const apiWhatIfResultSchema = z.object({
-  predicted: z.number(),
-  baseline: z.number(),
-  delta: z.number(),
-  factors: z.array(explainerFactorSchema).optional(),
+  target_date: z.string(),
+  predicted_mwh: z.number(),
+  prophet_baseline: z.number(),
+  lgbm_residual: z.number(),
+  base_value: z.number(),
+  shap_contributions: z.array(shapContributionSchema),
 });
 
 export type WhatIfPayloadInput = z.infer<typeof whatIfPayloadSchema>;

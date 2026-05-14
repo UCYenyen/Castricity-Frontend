@@ -4,7 +4,8 @@ import { AlertTriangle } from "lucide-react";
 import { useLiveClock } from "@/hooks/use-live-clock";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { useTweaks } from "@/hooks/use-tweaks";
-import { computeMetrics, REGIONS } from "@/lib/dashboard/data";
+import { REGIONS } from "@/lib/dashboard/data";
+import { TEST_SET_METRICS } from "@/lib/dashboard/model-metrics";
 import { fmtTime } from "@/lib/dashboard/format";
 import type {
   BrushRange, ExplainerPoint, ForecastHorizon, ForecastPoint,
@@ -70,10 +71,13 @@ export function DashboardView() {
     return h.slice(i0, i1 + 1);
   }, [data?.history, brush]);
 
-  const metrics: Metrics = useMemo(() => {
-    if (slicedHist.length > 0) return computeMetrics(slicedHist);
-    return data?.metrics ?? { mae: 0, rmse: 0, mape: 0, bias: 0, hit: 0 };
-  }, [slicedHist, data?.metrics]);
+  const metrics: Metrics = {
+    mae: TEST_SET_METRICS.mae,
+    rmse: TEST_SET_METRICS.rmse,
+    mape: TEST_SET_METRICS.mape,
+    bias: 0,
+    hit: data?.metrics?.hit ?? 0,
+  };
 
   const onWindowChange = (h: HistoryWindow) => {
     setHistoryHours(h);
@@ -139,7 +143,7 @@ export function DashboardView() {
               onSelect={(a) => setExplainPt(a.point)}
             />
 
-            <div className="grid gap-4 grid-cols-1 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+            <div className="grid gap-4 grid-cols-1">
               <ValidationCard
                 history={data.history}
                 metrics={metrics}
@@ -160,7 +164,7 @@ export function DashboardView() {
                 }
                 slicedCount={slicedHist.length}
               />
-              <ForecastCard
+              {/* <ForecastCard
                 history={data.history}
                 future={futureSlice}
                 peak={peak}
@@ -174,7 +178,7 @@ export function DashboardView() {
                 onShowHistOnForecast={(v) => setTweak("showHistoryOnForecast", v)}
                 now={now}
                 onPointClick={setExplainPt}
-              />
+              /> */}
             </div>
 
             {explainPt && <Explainer point={explainPt} onClose={() => setExplainPt(null)} />}

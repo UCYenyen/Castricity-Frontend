@@ -61,7 +61,8 @@ export function WhatIfPanel() {
               onChange={(e) => setTemp(Number(e.target.value))}
               className="mono text-sm h-9"
               min={-10}
-              max={50}
+              max={45}
+              step={0.1}
             />
           </div>
           <div className="space-y-1.5">
@@ -74,7 +75,8 @@ export function WhatIfPanel() {
               onChange={(e) => setRain(Number(e.target.value))}
               className="mono text-sm h-9"
               min={0}
-              max={200}
+              max={500}
+              step={0.1}
             />
           </div>
           <div className="space-y-1.5">

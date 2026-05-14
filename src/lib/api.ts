@@ -39,11 +39,11 @@ export class ApiError extends Error {
 async function fetchJson<T>(
   path: string,
   schema: z.ZodType<T>,
-  init?: RequestInit
+  init?: RequestInit,
 ): Promise<T> {
   if (!API) {
     throw new ApiError(
-      "NEXT_PUBLIC_API_URL is not configured. Set it in .env.local."
+      "NEXT_PUBLIC_API_URL is not configured. Set it in .env.local.",
     );
   }
   const res = await fetch(`${API}${path}`, {
@@ -60,7 +60,7 @@ async function fetchJson<T>(
   const parsed = schema.safeParse(json);
   if (!parsed.success) {
     throw new ApiError(
-      `Invalid response shape for ${path}: ${parsed.error.message}`
+      `Invalid response shape for ${path}: ${parsed.error.message}`,
     );
   }
   return parsed.data;
@@ -69,7 +69,7 @@ async function fetchJson<T>(
 export type MetricsSplit = "train" | "val" | "test";
 
 export async function getMetrics(
-  args: { split?: MetricsSplit; signal?: AbortSignal } = {}
+  args: { split?: MetricsSplit; signal?: AbortSignal } = {},
 ): Promise<Metrics> {
   const qs = args.split ? `?split=${args.split}` : "";
   const raw = await fetchJson(`/metrics${qs}`, apiMetricsSchema, {
@@ -85,13 +85,15 @@ export async function getMetrics(
 }
 
 export async function getHistorical(
-  args: { start?: string; end?: string; signal?: AbortSignal } = {}
+  args: { start?: string; end?: string; signal?: AbortSignal } = {},
 ): Promise<HistoryPoint[]> {
   const qs = new URLSearchParams();
   if (args.start) qs.set("start", args.start.slice(0, 10));
   if (args.end) qs.set("end", args.end.slice(0, 10));
   const path = `/forecast/historical${qs.toString() ? `?${qs}` : ""}`;
-  const raw = await fetchJson(path, apiHistoricalSchema, { signal: args.signal });
+  const raw = await fetchJson(path, apiHistoricalSchema, {
+    signal: args.signal,
+  });
   return raw.map((p) => ({
     t: new Date(p.date),
     actual: p.actual,
@@ -101,16 +103,14 @@ export async function getHistorical(
 }
 
 export async function getFuture(
-  args: { days?: number; startDate?: string; signal?: AbortSignal } = {}
+  args: { days?: number; startDate?: string; signal?: AbortSignal } = {},
 ): Promise<ForecastPoint[]> {
   const qs = new URLSearchParams();
   qs.set("days", String(args.days ?? 7));
   if (args.startDate) qs.set("start_date", args.startDate.slice(0, 10));
-  const raw = await fetchJson(
-    `/forecast/future?${qs}`,
-    apiFutureSchema,
-    { signal: args.signal }
-  );
+  const raw = await fetchJson(`/forecast/future?${qs}`, apiFutureSchema, {
+    signal: args.signal,
+  });
   return raw.map((p) => ({
     t: new Date(p.date),
     predicted: p.predicted,
@@ -120,7 +120,7 @@ export async function getFuture(
 }
 
 export async function getAnomalies(
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<AnomalyEntry[]> {
   const raw = await fetchJson("/anomalies", apiAnomaliesSchema, { signal });
   const now = Date.now();
@@ -140,7 +140,14 @@ export async function getAnomalies(
         sign,
       },
       ...(a.score != null
-        ? [{ k: "IF score", v: a.score.toFixed(4), w: Math.min(1, Math.abs(a.score) * 100), sign: -1 as const }]
+        ? [
+            {
+              k: "IF score",
+              v: a.score.toFixed(4),
+              w: Math.min(1, Math.abs(a.score) * 100),
+              sign: -1 as const,
+            },
+          ]
         : []),
     ];
     const data: ExplainerData = {
@@ -167,7 +174,7 @@ export async function getAnomalies(
 
 export async function runWhatIf(
   payload: WhatIfPayloadInput,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<ApiWhatIfResult> {
   const body = whatIfPayloadSchema.parse({
     ...payload,
@@ -182,7 +189,7 @@ export async function runWhatIf(
 
   const maxAbs = Math.max(
     1e-6,
-    ...raw.shap_contributions.map((c) => Math.abs(c.contribution))
+    ...raw.shap_contributions.map((c) => Math.abs(c.contribution)),
   );
   const factors = [...raw.shap_contributions]
     .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
@@ -190,7 +197,10 @@ export async function runWhatIf(
       k: c.feature,
       v: `${c.contribution >= 0 ? "+" : ""}${c.contribution.toFixed(0)} MW`,
       w: Math.min(1, Math.abs(c.contribution) / maxAbs),
-      sign: (c.contribution > 0 ? 1 : c.contribution < 0 ? -1 : 0) as -1 | 0 | 1,
+      sign: (c.contribution > 0 ? 1 : c.contribution < 0 ? -1 : 0) as
+        | -1
+        | 0
+        | 1,
     }));
 
   return {
@@ -202,19 +212,19 @@ export async function runWhatIf(
 }
 
 export async function getFeatures(
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<ApiFeaturesResponse> {
   return fetchJson("/features", apiFeaturesResponseSchema, { signal });
 }
 
 export async function getRequiredFeatures(
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<ApiFeatureInfo[]> {
   return fetchJson("/features/required", apiRequiredFeaturesSchema, { signal });
 }
 
 export async function getFeatureImportance(
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<ApiFeatureImportance[]> {
   return fetchJson("/features/importance", apiFeatureImportanceListSchema, {
     signal,

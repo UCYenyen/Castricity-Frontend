@@ -10,8 +10,8 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <Features />
+        <Footer />
       </main>
-      <Footer />
     </div>
   );
 }

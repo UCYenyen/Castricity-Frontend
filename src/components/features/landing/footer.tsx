@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -110,6 +111,12 @@ export function Footer() {
                 </li>
               </ul>
             </div>
+          </div>
+          <div className="w-full flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-8">
+            <Image src={"/AiConnect.webp"} width={100} height={100} alt="ai connect" className="h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+            <Image src={"/DTETI.webp"} width={100} height={100} alt="DTETI" className="h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+            <Image src={"/FINDIT.webp"} width={100} height={100} alt="FindIT" className="h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+            <Image src={"/ugm.webp"} width={100} height={100} alt="UGM" className="h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
           </div>
           <div className="mt-12 pt-8 border-t border-border/50 text-center text-xs text-text-faint flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>

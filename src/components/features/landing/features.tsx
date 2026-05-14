@@ -40,10 +40,10 @@ export function Features() {
             </p>
           </div>
 
-          <div ref={revealRef3} className="bento-grid stagger-reveal-grid">
+          <div ref={revealRef3} className="grid grid-cols-1 md:grid-cols-2 gap-6 stagger-reveal-grid">
             
             {/* Card 1: Why Castricity (Span 2) */}
-            <div className="bento-span-2 glass-card p-8 relative overflow-hidden group">
+            <div className="md:col-span-2 glass-card p-8 md:p-10 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                 <Server size={120} />
               </div>
@@ -54,7 +54,7 @@ export function Features() {
                 Mengapa Castricity?
               </h3>
               <p className="text-muted-foreground text-lg leading-relaxed max-w-md relative z-10">
-                Memprediksi kebutuhan listrik negara bukan sekadar menebak tren. Castricity menggunakan <strong>Sistem AI Hybrid</strong> untuk mengolah jutaan titik data cuaca dan ekonomi. Di balik layar, mesin pintar <em>(Prophet & LightGBM)</em> memastikan stabilitas grid, sementara teknologi <em>SHAP</em> menjamin setiap keputusan dapat diaudit secara transparan.
+                Memprediksi kebutuhan listrik negara bukan sekadar menebak tren. Castricity menggunakan Sistem AI Hybrid untuk mengolah data cuaca dan ekonomi secara presisi. Di balik layar, Prophet & LightGBM menangani prediksi akurat, Isolation Forest mengawal keamanan jaringan dari anomali, sementara teknologi SHAP menjamin setiap keputusan dapat dijelaskan dan diaudit secara transparan.
               </p>
               <ul className="mt-6 space-y-3 relative z-10">
                 {['Tanpa Ketergantungan Cloud Asing', 'Deteksi Anomali Otomatis', 'Auditabilitas Penuh'].map((item, i) => (
@@ -66,7 +66,7 @@ export function Features() {
             </div>
 
             {/* Card 2: Radial Dial */}
-            <div className="glass-card p-8 flex flex-col items-center justify-center text-center group">
+            <div className="glass-card p-8 h-full flex flex-col items-center justify-center text-center group">
               <div className="relative size-40 mb-6 flex items-center justify-center">
                 {/* SVG Radial Progress */}
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -92,7 +92,7 @@ export function Features() {
             </div>
 
             {/* Card 3: ML Pipeline */}
-            <div className="glass-card p-8 group">
+            <div className="glass-card p-8 h-full flex flex-col justify-center group">
               <h3 className="text-lg font-bold text-white mb-6">Pipeline Pintar</h3>
               <div className="flex items-center justify-between relative">
                 {/* Connecting Line */}
@@ -124,58 +124,12 @@ export function Features() {
               </p>
             </div>
 
-            {/* Card 4: Mini Chart (Span 2) */}
-            <div className="bento-span-2 glass-card p-8 group">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Activity size={18} className="text-accent-cyan" />
-                  Optimasi Jaringan Real-time
-                </h3>
-                <span className="text-xs font-mono text-accent-cyan px-2 py-1 rounded bg-accent-cyan/10 border border-accent-cyan/20">LIVE</span>
-              </div>
-              
-              <div className="relative h-40 w-full rounded-lg border border-border/50 bg-[#0a1224] overflow-hidden">
-                {/* Mock Chart SVG */}
-                <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-                  {/* Grid lines */}
-                  <line x1="0" y1="25" x2="100" y2="25" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
-                  <line x1="0" y1="50" x2="100" y2="50" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
-                  <line x1="0" y1="75" x2="100" y2="75" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
-                  
-                  {/* Chart Line */}
-                  <path d="M0,80 L10,75 L20,60 L30,65 L40,40 L50,45 L60,20 L70,30 L80,10 L90,15 L100,5" fill="none" stroke="#06b6d4" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-                  <path d="M0,100 L0,80 L10,75 L20,60 L30,65 L40,40 L50,45 L60,20 L70,30 L80,10 L90,15 L100,5 L100,100 Z" fill="url(#chartGrad)" />
-                  
-                  <defs>
-                    <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="rgba(6,182,212,0.3)" />
-                      <stop offset="100%" stopColor="rgba(6,182,212,0)" />
-                    </linearGradient>
-                  </defs>
-                  
-                  {/* Data Points */}
-                  <circle cx="40" cy="40" r="1.5" fill="#fff" />
-                  <circle cx="60" cy="20" r="1.5" fill="#fff" />
-                  <circle cx="80" cy="10" r="1.5" fill="#fff" />
-                  
-                  {/* Highlight Point */}
-                  <circle cx="80" cy="10" r="3" fill="#06b6d4" className="animate-pulse" />
-                </svg>
-                
-                {/* Tooltip mockup */}
-                <div className="absolute top-2 right-1/4 bg-popover border border-border text-xs px-2 py-1 rounded shadow-lg backdrop-blur">
-                  <span className="text-muted-foreground">Beban: </span>
-                  <span className="text-white font-mono">12.4 GW</span>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </section>
 
       {/* ===== DASHBOARD SHOWCASE SECTION ===== */}
-      <section ref={revealRef2} className="scroll-reveal py-24 border-y border-border/30 bg-black/20">
+      <section id="showcase" ref={revealRef2} className="scroll-reveal py-24 border-y border-border/30 bg-black/20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">

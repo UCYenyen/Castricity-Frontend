@@ -31,10 +31,8 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-          <Link href="#problem" className="hover:text-foreground transition-colors">Tantangan</Link>
-          <Link href="#how-it-works" className="hover:text-foreground transition-colors">Cara Kerja</Link>
-          <Link href="#features" className="hover:text-foreground transition-colors">Kemampuan</Link>
-          <Link href="#performance" className="hover:text-foreground transition-colors">Hasil</Link>
+          <Link href="#features" className="hover:text-foreground transition-colors">Infrastruktur & Fitur</Link>
+          <Link href="#showcase" className="hover:text-foreground transition-colors">Platform</Link>
         </div>
 
         <div className="flex items-center gap-4">

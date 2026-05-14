@@ -123,7 +123,7 @@ export function Footer() {
               &copy; {new Date().getFullYear()} Castricity. Dibangun untuk masa
               depan energi yang lebih transparan.
             </span>
-            <span className="mono">v2.4.1</span>
+            <span className="mono">v1.0.0</span>
           </div>
         </div>
       </footer>

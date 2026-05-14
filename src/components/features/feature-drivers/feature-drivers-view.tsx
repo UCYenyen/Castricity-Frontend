@@ -1,6 +1,8 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useFeatureDrivers } from "@/hooks/use-feature-drivers";
+import { useLiveClock } from "@/hooks/use-live-clock";
+import { DashboardTopbar } from "../dashboard/topbar";
 import type { ApiFeatureInfo, ApiFeatureImportance } from "@/types/api";
 import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
@@ -40,6 +42,7 @@ const CATEGORY_BADGE: Record<string, string> = {
 type CategoryFilter = "all" | string;
 
 export function FeatureDriversView() {
+  const now = useLiveClock(30_000);
   const { data, loading, refreshing, error, refresh } = useFeatureDrivers();
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [search, setSearch] = useState("");
@@ -87,8 +90,15 @@ export function FeatureDriversView() {
   }, [data]);
 
   return (
-    <div className="flex flex-col gap-4 p-4 sm:p-6 lg:p-8">
-      {/* Header */}
+    <div className="flex flex-col min-w-0">
+      <DashboardTopbar
+        title="Feature Drivers"
+        now={now}
+        onRefresh={refresh}
+        refreshing={refreshing}
+      />
+      <div className="flex flex-col gap-4 p-4 sm:p-6 lg:p-8">
+        {/* Header */}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-foreground flex items-center gap-2">
@@ -218,6 +228,7 @@ export function FeatureDriversView() {
           </Card>
         </>
       )}
+      </div>
     </div>
   );
 }

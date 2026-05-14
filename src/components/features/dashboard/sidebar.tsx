@@ -163,7 +163,7 @@ export function DashboardSidebar(): ReactNode {
             <span>Aliran data aktif</span>
           </div>
           <div className="mono text-[10px] text-text-faint">
-            v2.4.1 · build a17f3
+            v1.0.0
           </div>
         </div>
       </SidebarFooter>

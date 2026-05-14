@@ -17,6 +17,8 @@ import { AnomalyStrip } from "./anomaly-strip";
 import { ValidationCard } from "./validation-card";
 import { ForecastCard } from "./forecast-card";
 import { Explainer } from "./explainer";
+import { AnomalyDialog } from "../anomaly-center/anomaly-dialog";
+import type { AnomalyEntry } from "@/types/dashboard";
 
 const ACCENT_HEX: Record<string, string> = {
   cyan: "#06B6D4",
@@ -42,6 +44,7 @@ export function DashboardView() {
   const [futureHours, setFutureHours] = useState<ForecastHorizon>(48);
   const [brush, setBrush] = useState<BrushRange>([0, 1]);
   const [explainPt, setExplainPt] = useState<ExplainerPoint | null>(null);
+  const [selectedAnomaly, setSelectedAnomaly] = useState<AnomalyEntry | null>(null);
   const [range, setRange] = useState<DateRange | undefined>(undefined);
 
   const futureDays = Math.max(1, Math.ceil(futureHours / 24));
@@ -100,6 +103,7 @@ export function DashboardView() {
   return (
     <div className="flex flex-col min-w-0">
       <DashboardTopbar
+        title="Dasbor Operasional"
         now={now}
         onRefresh={refresh}
         refreshing={refreshing}
@@ -140,7 +144,7 @@ export function DashboardView() {
 
             <AnomalyStrip
               anomalies={data.anomalies}
-              onSelect={(a) => setExplainPt(a.point)}
+              onSelect={setSelectedAnomaly}
             />
 
             <div className="grid gap-4 grid-cols-1">
@@ -183,6 +187,7 @@ export function DashboardView() {
             </div>
 
             {explainPt && <Explainer point={explainPt} onClose={() => setExplainPt(null)} />}
+            <AnomalyDialog selected={selectedAnomaly} onClose={() => setSelectedAnomaly(null)} />
 
             <div className="mono text-[11px] text-center py-3 text-text-faint tracking-[0.04em]">
               CASTRICITY · dasbor operasional · {data.history.length} obs ·{" "}

@@ -92,7 +92,7 @@ Setelah masuk, Anda akan melihat **sidebar navigasi** di sisi kiri layar. Sideba
 │  ┗ 📖 Panduan            │
 ├──────────────────────────┤
 │  🟢 Aliran data aktif    │
-│  v2.4.1 · build a17f3    │
+│  v1.0.0    │
 └──────────────────────────┘
 ```
 
@@ -418,4 +418,4 @@ Tabel yang menampilkan seluruh fitur dengan kolom:
 
 ---
 
-> **Castricity** · Panduan Pengguna · v2.4.1
+> **Castricity** · Panduan Pengguna · v1.0.0

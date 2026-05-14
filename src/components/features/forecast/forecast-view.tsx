@@ -1,6 +1,8 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ApiError, getFuture } from "@/lib/api";
+import { useLiveClock } from "@/hooks/use-live-clock";
+import { DashboardTopbar } from "../dashboard/topbar";
 import type { ForecastPoint } from "@/types/dashboard";
 import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
@@ -34,6 +36,7 @@ const fmtDate = (d: Date) => `${d.getDate()} ${MONTH[d.getMonth()]} ${d.getFullY
 const today = () => new Date(new Date().setHours(0, 0, 0, 0));
 
 export function ForecastView() {
+  const now = useLiveClock(30_000);
   const [horizon, setHorizon] = useState<number>(30);
   const [startDate, setStartDate] = useState<Date>(today());
   const [showBand, setShowBand] = useState(true);
@@ -71,6 +74,11 @@ export function ForecastView() {
     return () => ctrl.abort();
   }, [horizon, startDate, fetchFuture]);
 
+  const refresh = useCallback(() => {
+    const ctrl = new AbortController();
+    fetchFuture(horizon, startDate, ctrl.signal);
+  }, [fetchFuture, horizon, startDate]);
+
   const summary = useMemo(() => {
     if (future.length === 0) return null;
     const preds = future.map((p) => p.predicted);
@@ -86,8 +94,15 @@ export function ForecastView() {
   }, [future]);
 
   return (
-    <div className="flex flex-col gap-4 p-4 sm:p-6 lg:p-8">
-      <header className="flex flex-wrap items-end justify-between gap-3">
+    <div className="flex flex-col min-w-0">
+      <DashboardTopbar
+        title="Peramalan Multi-Horizon"
+        now={now}
+        onRefresh={refresh}
+        refreshing={loading}
+      />
+      <div className="flex flex-col gap-4 p-4 sm:p-6 lg:p-8">
+        <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-foreground flex items-center gap-2">
             <TrendingUp size={18} className="text-accent-cyan" />
@@ -230,6 +245,7 @@ export function ForecastView() {
         }}
         minDate={bounds?.min}
       />
+      </div>
     </div>
   );
 }

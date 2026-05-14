@@ -1,6 +1,8 @@
 "use client";
 import { useMemo, useState, useEffect } from "react";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
+import { useLiveClock } from "@/hooks/use-live-clock";
+import { DashboardTopbar } from "../dashboard/topbar";
 import { AnomalyChart } from "./anomaly-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle, Loader2, RefreshCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { fmtMW, fmtSigned, fmtTime } from "@/lib/dashboard/format";
 import type { AnomalyEntry, Severity } from "@/types/dashboard";
+import { AnomalyDialog } from "./anomaly-dialog";
 
 const SEV_CLASS: Record<Severity, string> = {
   critical: "border-accent-red/40 bg-accent-red/15 text-red-300",
@@ -37,6 +40,7 @@ const HISTORY_OPTIONS = [
 const ITEMS_PER_PAGE = 10;
 
 export function AnomalyCenterView() {
+  const now = useLiveClock(30_000);
   const [historyHours, setHistoryHours] = useState<number>(168);
   const [sev, setSev] = useState<SevFilter>("all");
   const [selected, setSelected] = useState<AnomalyEntry | null>(null);
@@ -70,7 +74,14 @@ export function AnomalyCenterView() {
   }, [data]);
 
   return (
-    <div className="flex flex-col gap-4 p-4 sm:p-6 lg:p-8">
+    <div className="flex flex-col min-w-0">
+      <DashboardTopbar
+        title="Anomali Center"
+        now={now}
+        onRefresh={refresh}
+        refreshing={refreshing}
+      />
+      <div className="flex flex-col gap-4 p-4 sm:p-6 lg:p-8">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-foreground">Anomali Center</h1>
@@ -254,77 +265,9 @@ export function AnomalyCenterView() {
         </CardContent>
       </Card>
 
-      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
-        <DialogContent className="max-w-lg">
-          {selected && (
-            <>
-              <DialogHeader>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant="outline"
-                    className={`h-5 px-1.5 text-[9px] font-bold uppercase tracking-[0.12em] ${SEV_CLASS[selected.sev]}`}
-                  >
-                    {selected.sev}
-                  </Badge>
-                  <DialogTitle className="text-sm">{selected.title}</DialogTitle>
-                </div>
-                <DialogDescription className="mono text-[11px] text-text-muted">
-                  {fmtTime(selected.point.t, { withDate: true, withYear: true })} · {selected.asset}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="grid grid-cols-3 gap-2 mt-2">
-                <DetailTile label="Actual" value={selected.point.actual != null ? `${fmtMW(selected.point.actual)} MW` : "—"} />
-                <DetailTile label="Predicted" value={`${fmtMW(selected.point.predicted)} MW`} />
-                <DetailTile
-                  label="Delta"
-                  value={`${fmtSigned((selected.point.actual ?? 0) - selected.point.predicted, 0)} MW`}
-                  accent={
-                    (selected.point.actual ?? 0) - selected.point.predicted >= 0
-                      ? "text-accent-red"
-                      : "text-accent-green"
-                  }
-                />
-              </div>
-
-              {selected.point.data?.desc && (
-                <p className="mt-3 text-xs text-text-secondary">
-                  {selected.point.data.desc}
-                </p>
-              )}
-
-              {selected.point.data?.factors && selected.point.data.factors.length > 0 && (
-                <div className="mt-4 flex flex-col gap-1.5">
-                  <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                    Faktor kontribusi
-                  </div>
-                  {selected.point.data.factors.map((f, i) => (
-                    <div
-                      key={i}
-                      className="grid items-center gap-2.5 text-[11.5px]"
-                      style={{ gridTemplateColumns: "120px 1fr 64px" }}
-                    >
-                      <div className="text-text-secondary">{f.k}</div>
-                      <div className="relative h-1.5 overflow-hidden rounded-full bg-muted-foreground/10">
-                        <i
-                          className="absolute inset-y-0"
-                          style={{
-                            width: `${f.w * 50}%`,
-                            left: f.sign < 0 ? `${50 - f.w * 50}%` : "50%",
-                            background: f.sign < 0 ? "var(--accent-red)" : "var(--accent-cyan)",
-                          }}
-                        />
-                      </div>
-                      <div className="mono text-right">{f.v}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      <AnomalyDialog selected={selected} onClose={() => setSelected(null)} />
     </div>
+  </div>
   );
 }
 

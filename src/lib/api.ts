@@ -101,11 +101,13 @@ export async function getHistorical(
 }
 
 export async function getFuture(
-  args: { days?: number; signal?: AbortSignal } = {}
+  args: { days?: number; startDate?: string; signal?: AbortSignal } = {}
 ): Promise<ForecastPoint[]> {
-  const days = args.days ?? 7;
+  const qs = new URLSearchParams();
+  qs.set("days", String(args.days ?? 7));
+  if (args.startDate) qs.set("start_date", args.startDate.slice(0, 10));
   const raw = await fetchJson(
-    `/forecast/future?days=${days}`,
+    `/forecast/future?${qs}`,
     apiFutureSchema,
     { signal: args.signal }
   );

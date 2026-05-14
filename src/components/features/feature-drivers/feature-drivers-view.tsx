@@ -30,11 +30,11 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const CATEGORY_BADGE: Record<string, string> = {
-  temporal: "border-accent-purple/30 bg-accent-purple/15 text-accent-purple",
-  lag: "border-accent-cyan/30 bg-accent-cyan/15 text-accent-cyan-2",
-  rolling: "border-accent-green/30 bg-accent-green/15 text-accent-green",
+  temporal: "border-accent-orange/30 bg-accent-orange/15 text-accent-orange",
+  lag: "border-accent-orange/30 bg-accent-orange/15 text-accent-orange",
+  rolling: "border-accent-orange/30 bg-accent-orange/15 text-accent-orange",
   exogenous: "border-accent-orange/30 bg-accent-orange/15 text-accent-orange",
-  categorical: "border-accent-red/30 bg-accent-red/15 text-accent-red",
+  categorical: "border-accent-orange/30 bg-accent-orange/15 text-accent-orange",
 };
 
 type CategoryFilter = "all" | string;

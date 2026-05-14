@@ -5,11 +5,10 @@ import type { DateRange } from "react-day-picker";
 import { useLiveClock } from "@/hooks/use-live-clock";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { useTweaks } from "@/hooks/use-tweaks";
-import { REGIONS } from "@/lib/dashboard/data";
 import { fmtTime } from "@/lib/dashboard/format";
 import type {
   BrushRange, ExplainerPoint, ForecastHorizon, ForecastPoint,
-  Metrics, Region,
+  Metrics,
 } from "@/types/dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardTopbar } from "./topbar";
@@ -40,7 +39,6 @@ function pickPeakTrough(future: ForecastPoint[]): {
 export function DashboardView() {
   const now = useLiveClock(30_000);
   const [tweaks, setTweak] = useTweaks();
-  const [regionId, setRegionId] = useState<string>(REGIONS[0].id);
   const [futureHours, setFutureHours] = useState<ForecastHorizon>(48);
   const [brush, setBrush] = useState<BrushRange>([0, 1]);
   const [explainPt, setExplainPt] = useState<ExplainerPoint | null>(null);
@@ -70,10 +68,6 @@ export function DashboardView() {
   }, [data?.history, range]);
 
   const accent = ACCENT_HEX[tweaks.accent] ?? ACCENT_HEX.cyan;
-  const region: Region = useMemo(
-    () => REGIONS.find((r) => r.id === regionId) ?? REGIONS[0],
-    [regionId]
-  );
 
   const futureSlice = useMemo<ForecastPoint[]>(
     () => (data?.future ?? []).slice(0, futureHours),
@@ -107,8 +101,6 @@ export function DashboardView() {
     <div className="flex flex-col min-w-0">
       <DashboardTopbar
         now={now}
-        region={region}
-        onRegion={setRegionId}
         onRefresh={refresh}
         refreshing={refreshing}
       />
@@ -119,8 +111,7 @@ export function DashboardView() {
               Dasbor operasional
             </h1>
             <div className="text-[13px] mt-1 text-muted-foreground">
-              {region.name} · horizon peramalan {futureHours}j ·{" "}
-              <span className="mono ml-1 text-accent-cyan-2">{region.code}</span>
+              Horizon peramalan {futureHours}j
             </div>
           </div>
           <div className="mono text-[11px] flex items-center gap-1.5 text-muted-foreground">

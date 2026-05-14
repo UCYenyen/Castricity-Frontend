@@ -20,7 +20,7 @@ export function HeroMetrics({ history, future, peak, metrics }: Props) {
     <div className="grid gap-3.5 grid-cols-1 sm:grid-cols-2">
       <MetricTile
         hero
-        corner={fmtTime(peak.t, { withDate: true })}
+        corner={fmtTime(peak.t, { withDate: true, withYear: true })}
         label="Puncak permintaan besok"
         value={fmtMW(peak.predicted)}
         unit="MW"

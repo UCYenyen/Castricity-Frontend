@@ -12,7 +12,10 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle, Loader2, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AlertTriangle, CalendarIcon, Loader2, TrendingUp } from "lucide-react";
 import { fmtMW } from "@/lib/dashboard/format";
 import { MultiHorizonChart } from "./multi-horizon-chart";
 import { WhatIfPanel } from "./whatif-panel";
@@ -26,35 +29,47 @@ const HORIZON_PRESETS = [
   { v: 730, l: "2 tahun" },
 ] as const;
 
+const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const fmtDate = (d: Date) => `${d.getDate()} ${MONTH[d.getMonth()]} ${d.getFullYear()}`;
+const today = () => new Date(new Date().setHours(0, 0, 0, 0));
+
 export function ForecastView() {
   const [horizon, setHorizon] = useState<number>(30);
+  const [startDate, setStartDate] = useState<Date>(today());
   const [showBand, setShowBand] = useState(true);
   const [future, setFuture] = useState<ForecastPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<ForecastPoint | null>(null);
 
-  const fetchFuture = useCallback(async (days: number, signal: AbortSignal) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getFuture({ days, signal });
-      if (signal.aborted) return;
-      setFuture(data);
-      setSelected((prev) => prev ?? data[0] ?? null);
-    } catch (e) {
-      if ((e as { name?: string }).name === "AbortError") return;
-      setError(e instanceof ApiError ? e.message : "Gagal memuat peramalan");
-    } finally {
-      if (!signal.aborted) setLoading(false);
-    }
-  }, []);
+  const fetchFuture = useCallback(
+    async (days: number, start: Date, signal: AbortSignal) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getFuture({
+          days,
+          startDate: start.toISOString().slice(0, 10),
+          signal,
+        });
+        if (signal.aborted) return;
+        setFuture(data);
+        setSelected(data[0] ?? null);
+      } catch (e) {
+        if ((e as { name?: string }).name === "AbortError") return;
+        setError(e instanceof ApiError ? e.message : "Gagal memuat peramalan");
+      } finally {
+        if (!signal.aborted) setLoading(false);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     const ctrl = new AbortController();
-    fetchFuture(horizon, ctrl.signal);
+    fetchFuture(horizon, startDate, ctrl.signal);
     return () => ctrl.abort();
-  }, [horizon, fetchFuture]);
+  }, [horizon, startDate, fetchFuture]);
 
   const summary = useMemo(() => {
     if (future.length === 0) return null;
@@ -82,7 +97,32 @@ export function ForecastView() {
             Proyeksi hybrid Prophet + LightGBM. Klik satu hari pada grafik untuk memuat ke panel bagaimana-jika.
           </p>
         </div>
-        <div className="flex items-end gap-3">
+        <div className="flex items-end gap-3 flex-wrap">
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+              Mulai dari
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="mono h-9 w-40 justify-start gap-2 text-xs">
+                  <CalendarIcon size={14} />
+                  {fmtDate(startDate)}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={(d) => d && setStartDate(d)}
+                  defaultMonth={startDate}
+                  captionLayout="dropdown"
+                  startMonth={new Date(2024, 0, 1)}
+                  endMonth={new Date(2050, 11, 31)}
+                  autoFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
           <div className="space-y-1.5">
             <Label className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
               Preset
@@ -160,8 +200,7 @@ export function ForecastView() {
             )}
           </CardTitle>
           <CardDescription className="text-text-muted text-xs">
-            Peramalan dimulai sehari setelah set pelatihan berakhir ({bounds ? bounds.min.toISOString().slice(0, 10) : "—"}), bukan hari ini.
-            Arahkan kursor untuk nilai harian, klik untuk mengunci tanggal.
+            Mulai dari {fmtDate(startDate)}. Arahkan kursor untuk nilai harian, klik untuk mengunci tanggal.
           </CardDescription>
         </CardHeader>
         <CardContent>

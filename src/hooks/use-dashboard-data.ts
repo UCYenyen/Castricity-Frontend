@@ -54,7 +54,11 @@ export function useDashboardData({
       try {
         const [historyAll, future, anomalies, metrics] = await Promise.all([
           getHistorical({ signal }),
-          getFuture({ days: futureDays, signal }),
+          getFuture({
+            days: futureDays,
+            startDate: new Date().toISOString().slice(0, 10),
+            signal,
+          }),
           getAnomalies(signal),
           getMetrics({ split: "test", signal }).catch(() => null),
         ]);

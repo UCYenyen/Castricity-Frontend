@@ -1,27 +1,52 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { ArrowRight, Activity, ShieldCheck, Zap, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+interface Particle {
+  w: number;
+  h: number;
+  left: number;
+  top: number;
+  duration: number;
+  delay: number;
+}
+
 export function Hero() {
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  useEffect(() => {
+    setParticles(
+      Array.from({ length: 20 }, () => ({
+        w: Math.random() * 4 + 1,
+        h: Math.random() * 4 + 1,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: Math.random() * 10 + 10,
+        delay: Math.random() * 10,
+      }))
+    );
+  }, []);
+
   return (
-    <section className="relative overflow-hidden pt-24 pb-32 sm:pt-32 sm:pb-40 min-h-[800px] flex items-center bg-[#050a15]">
+    <section className="relative pt-24 pb-32 sm:pt-32 sm:pb-40 min-h-200 flex items-center bg-[#050a15]">
       {/* Background Flowing Energy Waves & Particles */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Animated Particles */}
-        {Array.from({ length: 20 }).map((_, i) => (
+        {/* Animated Particles (client-only to avoid hydration mismatch) */}
+        {particles.map((p, i) => (
           <div
             key={i}
             className="absolute rounded-full bg-accent-cyan"
             style={{
-              width: Math.random() * 4 + 1 + "px",
-              height: Math.random() * 4 + 1 + "px",
-              left: Math.random() * 100 + "%",
-              top: Math.random() * 100 + "%",
+              width: `${p.w}px`,
+              height: `${p.h}px`,
+              left: `${p.left}%`,
+              top: `${p.top}%`,
               opacity: 0,
-              animation: `particle-drift ${Math.random() * 10 + 10}s linear infinite`,
-              animationDelay: `${Math.random() * 10}s`,
+              animation: `particle-drift ${p.duration}s linear infinite`,
+              animationDelay: `${p.delay}s`,
               boxShadow: "0 0 10px rgba(6, 182, 212, 0.8)",
             }}
           />

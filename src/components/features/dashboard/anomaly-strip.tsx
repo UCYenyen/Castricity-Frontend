@@ -38,7 +38,7 @@ export function AnomalyStrip({ anomalies, onSelect }: Props) {
             }}
             onClick={() => onSelect(a)}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col flex-reverse items-center gap-2">
               <Badge
                 variant="outline"
                 className={`h-4 px-1.5 text-[9px] font-bold uppercase tracking-[0.12em] ${SEV_CLASS[a.sev]}`}
@@ -47,9 +47,9 @@ export function AnomalyStrip({ anomalies, onSelect }: Props) {
               </Badge>
               <span className="text-[13px] font-medium text-foreground">{a.title}</span>
             </div>
-            <div className="mono text-[11px] text-muted-foreground">
+            {/* <div className="mono text-[11px] text-muted-foreground">
               {a.asset} · {a.timeAgo}
-            </div>
+            </div> */}
           </button>
         ))}
       </div>

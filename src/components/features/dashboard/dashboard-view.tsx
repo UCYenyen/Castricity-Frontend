@@ -1,15 +1,15 @@
 "use client";
 import { useMemo, useState } from "react";
 import { AlertTriangle } from "lucide-react";
+import type { DateRange } from "react-day-picker";
 import { useLiveClock } from "@/hooks/use-live-clock";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { useTweaks } from "@/hooks/use-tweaks";
 import { REGIONS } from "@/lib/dashboard/data";
-import { TEST_SET_METRICS } from "@/lib/dashboard/model-metrics";
 import { fmtTime } from "@/lib/dashboard/format";
 import type {
   BrushRange, ExplainerPoint, ForecastHorizon, ForecastPoint,
-  HistoryWindow, Metrics, Region,
+  Metrics, Region,
 } from "@/types/dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardTopbar } from "./topbar";
@@ -41,16 +41,33 @@ export function DashboardView() {
   const now = useLiveClock(30_000);
   const [tweaks, setTweak] = useTweaks();
   const [regionId, setRegionId] = useState<string>(REGIONS[0].id);
-  const [historyHours, setHistoryHours] = useState<HistoryWindow>(168);
   const [futureHours, setFutureHours] = useState<ForecastHorizon>(48);
   const [brush, setBrush] = useState<BrushRange>([0, 1]);
   const [explainPt, setExplainPt] = useState<ExplainerPoint | null>(null);
+  const [range, setRange] = useState<DateRange | undefined>(undefined);
 
   const futureDays = Math.max(1, Math.ceil(futureHours / 24));
   const { data, loading, refreshing, error, refresh } = useDashboardData({
-    historyHours,
     futureDays,
   });
+
+  const rangeBounds = useMemo(() => {
+    const h = data?.history ?? [];
+    if (h.length === 0) return undefined;
+    return { min: h[0].t, max: h[h.length - 1].t };
+  }, [data?.history]);
+
+  const filteredHistory = useMemo(() => {
+    const h = data?.history ?? [];
+    if (!range?.from) return h;
+    const fromMs = range.from.setHours(0, 0, 0, 0);
+    const toMs = (range.to ?? range.from);
+    const toEnd = new Date(toMs).setHours(23, 59, 59, 999);
+    return h.filter((p) => {
+      const t = p.t.getTime();
+      return t >= fromMs && t <= toEnd;
+    });
+  }, [data?.history, range]);
 
   const accent = ACCENT_HEX[tweaks.accent] ?? ACCENT_HEX.cyan;
   const region: Region = useMemo(
@@ -71,16 +88,11 @@ export function DashboardView() {
     return h.slice(i0, i1 + 1);
   }, [data?.history, brush]);
 
-  const metrics: Metrics = {
-    mae: TEST_SET_METRICS.mae,
-    rmse: TEST_SET_METRICS.rmse,
-    mape: TEST_SET_METRICS.mape,
-    bias: 0,
-    hit: data?.metrics?.hit ?? 0,
-  };
+  const metrics: Metrics =
+    data?.metrics ?? { mae: 0, rmse: 0, mape: 0, bias: 0, hit: 0 };
 
-  const onWindowChange = (h: HistoryWindow) => {
-    setHistoryHours(h);
+  const onRangeChange = (r: DateRange | undefined) => {
+    setRange(r);
     setBrush([0, 1]);
   };
 
@@ -145,10 +157,11 @@ export function DashboardView() {
 
             <div className="grid gap-4 grid-cols-1">
               <ValidationCard
-                history={data.history}
+                history={filteredHistory}
                 metrics={metrics}
-                historyHours={historyHours}
-                onHistoryHours={onWindowChange}
+                range={range}
+                onRangeChange={onRangeChange}
+                rangeBounds={rangeBounds}
                 accent={accent}
                 brush={brush}
                 onBrush={setBrush}

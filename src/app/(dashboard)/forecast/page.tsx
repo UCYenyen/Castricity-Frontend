@@ -1,14 +1,10 @@
-import { WhatIfPanel } from "@/components/features/forecast/whatif-panel";
+import { ForecastView } from "@/components/features/forecast/forecast-view";
 
 export const metadata = {
-  title: "Castricity — What-if Forecaster",
-  description: "Run what-if scenarios against the electricity demand model.",
+  title: "Castricity — Multi-horizon Forecast",
+  description: "Multi-horizon demand forecast with what-if scenario analysis.",
 };
 
 export default function ForecastPage() {
-  return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <WhatIfPanel />
-    </div>
-  );
+  return <ForecastView />;
 }

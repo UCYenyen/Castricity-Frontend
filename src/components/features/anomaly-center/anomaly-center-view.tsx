@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { AnomalyChart } from "./anomaly-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +15,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle, Loader2, RefreshCcw } from "lucide-react";
+import { AlertTriangle, Loader2, RefreshCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { fmtMW, fmtSigned, fmtTime } from "@/lib/dashboard/format";
 import type { AnomalyEntry, Severity } from "@/types/dashboard";
 
@@ -34,10 +34,17 @@ const HISTORY_OPTIONS = [
   { v: 720, label: "Last 30d" },
 ] as const;
 
+const ITEMS_PER_PAGE = 10;
+
 export function AnomalyCenterView() {
   const [historyHours, setHistoryHours] = useState<number>(168);
   const [sev, setSev] = useState<SevFilter>("all");
   const [selected, setSelected] = useState<AnomalyEntry | null>(null);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [sev, historyHours]);
 
   const { data, loading, refreshing, error, refresh } = useDashboardData({
     historyHours,
@@ -48,6 +55,12 @@ export function AnomalyCenterView() {
   const filtered = useMemo(
     () => (data?.anomalies ?? []).filter((a) => (sev === "all" ? true : a.sev === sev)),
     [data, sev]
+  );
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginated = useMemo(
+    () => filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE),
+    [filtered, page]
   );
 
   const counts = useMemo(() => {
@@ -115,7 +128,7 @@ export function AnomalyCenterView() {
         </Alert>
       )}
 
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle className="text-sm">Demand series with flagged points</CardTitle>
           <CardDescription className="text-text-muted text-xs">
@@ -139,7 +152,7 @@ export function AnomalyCenterView() {
             )}
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       <Card>
         <CardHeader>
@@ -152,6 +165,7 @@ export function AnomalyCenterView() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[40px]">#</TableHead>
                 <TableHead className="w-[110px]">Severity</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead className="hidden md:table-cell">Asset</TableHead>
@@ -164,19 +178,21 @@ export function AnomalyCenterView() {
             <TableBody>
               {filtered.length === 0 && !loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-xs text-text-muted py-8">
+                  <TableCell colSpan={8} className="text-center text-xs text-text-muted py-8">
                     No anomalies in this window.
                   </TableCell>
                 </TableRow>
               ) : (
-                filtered.map((a, i) => {
+                paginated.map((a, i) => {
                   const delta = (a.point.actual ?? 0) - a.point.predicted;
+                  const rowNumber = (page - 1) * ITEMS_PER_PAGE + i + 1;
                   return (
                     <TableRow
                       key={i}
                       onClick={() => setSelected(a)}
                       className="cursor-pointer"
                     >
+                      <TableCell className="text-xs text-text-muted mono">{rowNumber}</TableCell>
                       <TableCell>
                         <Badge
                           variant="outline"
@@ -207,6 +223,34 @@ export function AnomalyCenterView() {
               )}
             </TableBody>
           </Table>
+          
+          {filtered.length > ITEMS_PER_PAGE && (
+            <div className="flex items-center justify-between border-t border-border px-4 py-3">
+              <div className="text-xs text-text-muted">
+                Showing {(page - 1) * ITEMS_PER_PAGE + 1} to {Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} entries
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="h-8 text-xs"
+                >
+                  <ChevronLeft size={14} className="mr-1" /> Prev
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages || totalPages === 0}
+                  className="h-8 text-xs"
+                >
+                  Next <ChevronRight size={14} className="ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

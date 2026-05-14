@@ -4,11 +4,17 @@ const MONTHS = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ] as const;
 
-export function fmtTime(d: Date, opts: { withDate?: boolean } = {}): string {
+export function fmtTime(
+  d: Date,
+  opts: { withDate?: boolean; withYear?: boolean } = {}
+): string {
   const hh = String(d.getHours()).padStart(2, "0");
   const mm = String(d.getMinutes()).padStart(2, "0");
   if (opts.withDate) {
-    return `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} · ${hh}:${mm}`;
+    const datePart = opts.withYear
+      ? `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
+      : `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`;
+    return `${datePart} · ${hh}:${mm}`;
   }
   return `${hh}:${mm}`;
 }

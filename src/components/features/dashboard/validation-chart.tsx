@@ -229,7 +229,7 @@ export function ValidationChart({
               }}
             >
               <div className="mono" style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>
-                {fmtTime(hover.t, { withDate: true })}
+                {fmtTime(hover.t, { withDate: true, withYear: true })}
               </div>
               <Row swatch={accent} label="Actual" value={`${fmtMW(hover.actual)} MW`} />
               <Row swatch="var(--accent-green)" label="Predicted" value={`${fmtMW(hover.predicted)} MW`} />

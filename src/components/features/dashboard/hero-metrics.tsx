@@ -56,17 +56,6 @@ export function HeroMetrics({ history, future, peak, metrics }: Props) {
         sparkline={accuracySpark}
       />
       <MetricTile
-        label="Live demand"
-        value={fmtMW(lastActual)}
-        unit="MW"
-        trend={{
-          dir: lastErrPct > 0.2 ? "up" : lastErrPct < -0.2 ? "down" : "flat",
-          text: `${fmtSigned(lastErrPct, 2)}% vs forecast`,
-        }}
-        accent="cyan"
-        sparkline={demandSpark}
-      />
-      <MetricTile
         label="System health"
         value={sysHealth}
         badge={sysHealthBadge}

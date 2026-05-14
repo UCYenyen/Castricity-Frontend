@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { runWhatIf } from "@/lib/api";
 import { fmtMW, fmtSigned } from "@/lib/dashboard/format";
 import type { ApiWhatIfResult } from "@/types/api";
@@ -10,11 +10,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { FlaskConical, Loader2 } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon, FlaskConical, Loader2 } from "lucide-react";
+import type { Matcher } from "react-day-picker";
 
-export function WhatIfPanel() {
-  const [temp, setTemp] = useState(28);
-  const [rain, setRain] = useState(0);
+const TOMORROW = () => new Date(Date.now() + 86_400_000);
+const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const fmtDate = (d: Date) => `${d.getDate()} ${MONTH[d.getMonth()]} ${d.getFullYear()}`;
+
+interface Props {
+  selectedDate?: Date;
+  onDateChange?: (d: Date) => void;
+  minDate?: Date;
+  maxDate?: Date;
+}
+
+export function WhatIfPanel({ selectedDate, onDateChange, minDate, maxDate }: Props = {}) {
+  const [internalDate, setInternalDate] = useState<Date>(selectedDate ?? TOMORROW());
+  const date = selectedDate ?? internalDate;
+  const setDate = (d: Date) => {
+    if (onDateChange) onDateChange(d);
+    else setInternalDate(d);
+  };
+
+  useEffect(() => {
+    if (selectedDate) setInternalDate(selectedDate);
+  }, [selectedDate]);
+
+  const [temp, setTemp] = useState("28");
+  const [rain, setRain] = useState("0");
+  const parseNum = (s: string) => {
+    const n = parseFloat(s.replace(",", "."));
+    return Number.isFinite(n) ? n : 0;
+  };
   const [holiday, setHoliday] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ApiWhatIfResult | null>(null);
@@ -25,9 +54,9 @@ export function WhatIfPanel() {
     setError(null);
     try {
       const r = await runWhatIf({
-        target_date: new Date(Date.now() + 86_400_000).toISOString(),
-        avg_temp: temp,
-        rainfall: rain,
+        target_date: date.toISOString(),
+        avg_temp: parseNum(temp),
+        rainfall: parseNum(rain),
         is_holiday: holiday,
       });
       setResult(r);
@@ -37,6 +66,11 @@ export function WhatIfPanel() {
       setLoading(false);
     }
   };
+
+  const disabledMatchers = [
+    minDate ? { before: minDate } : null,
+    maxDate ? { after: maxDate } : null,
+  ].filter(Boolean) as Matcher[];
 
   return (
     <Card>
@@ -50,19 +84,44 @@ export function WhatIfPanel() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+          <div className="space-y-1.5">
+            <Label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+              Target date
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="mono h-9 w-full justify-start gap-2 text-xs">
+                  <CalendarIcon size={14} />
+                  {fmtDate(date)}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(d) => d && setDate(d)}
+                  disabled={disabledMatchers}
+                  defaultMonth={date}
+                  captionLayout="dropdown"
+                  startMonth={minDate ?? new Date(2024, 0, 1)}
+                  endMonth={maxDate ?? new Date(2050, 11, 31)}
+                  autoFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
           <div className="space-y-1.5">
             <Label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
               Avg temperature (°C)
             </Label>
             <Input
-              type="number"
+              type="text"
+              inputMode="decimal"
               value={temp}
-              onChange={(e) => setTemp(Number(e.target.value))}
+              onChange={(e) => setTemp(e.target.value)}
               className="mono text-sm h-9"
-              min={-10}
-              max={45}
-              step={0.1}
+              placeholder="28.5"
             />
           </div>
           <div className="space-y-1.5">
@@ -70,13 +129,12 @@ export function WhatIfPanel() {
               Rainfall (mm)
             </Label>
             <Input
-              type="number"
+              type="text"
+              inputMode="decimal"
               value={rain}
-              onChange={(e) => setRain(Number(e.target.value))}
+              onChange={(e) => setRain(e.target.value)}
               className="mono text-sm h-9"
-              min={0}
-              max={500}
-              step={0.1}
+              placeholder="12.4"
             />
           </div>
           <div className="space-y-1.5">

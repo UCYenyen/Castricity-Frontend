@@ -66,8 +66,15 @@ async function fetchJson<T>(
   return parsed.data;
 }
 
-export async function getMetrics(signal?: AbortSignal): Promise<Metrics> {
-  const raw = await fetchJson("/metrics", apiMetricsSchema, { signal });
+export type MetricsSplit = "train" | "val" | "test";
+
+export async function getMetrics(
+  args: { split?: MetricsSplit; signal?: AbortSignal } = {}
+): Promise<Metrics> {
+  const qs = args.split ? `?split=${args.split}` : "";
+  const raw = await fetchJson(`/metrics${qs}`, apiMetricsSchema, {
+    signal: args.signal,
+  });
   return {
     mae: raw.mae,
     rmse: raw.rmse,

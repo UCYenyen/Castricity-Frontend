@@ -20,10 +20,10 @@ export function AnomalyStrip({ anomalies, onSelect }: Props) {
         <span className="pulse-dot-red" />
         <div>
           <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-            Open anomalies · 24h
+            Total Anomali
           </div>
           <div className="mono text-lg font-semibold text-foreground">
-            {anomalies.length} active
+            {anomalies.length} aktif
           </div>
         </div>
       </div>

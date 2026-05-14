@@ -22,7 +22,8 @@ export interface DashboardData {
 }
 
 interface UseDashboardDataArgs {
-  historyHours: number;
+  /** If omitted, the full historical dataset is returned. */
+  historyHours?: number;
   futureDays: number;
   autoTickMs?: number;
 }
@@ -55,11 +56,13 @@ export function useDashboardData({
           getHistorical({ signal }),
           getFuture({ days: futureDays, signal }),
           getAnomalies(signal),
-          getMetrics(signal).catch(() => null),
+          getMetrics({ split: "test", signal }).catch(() => null),
         ]);
         if (signal.aborted) return;
-        const days = Math.max(1, Math.ceil(historyHours / 24));
-        const history = historyAll.slice(-days);
+        const history =
+          historyHours != null
+            ? historyAll.slice(-Math.max(1, Math.ceil(historyHours / 24)))
+            : historyAll;
         setData({ history, future, anomalies, metrics });
       } catch (e) {
         if ((e as { name?: string }).name === "AbortError") return;

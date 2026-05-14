@@ -2,7 +2,7 @@ import { ForecastView } from "@/components/features/forecast/forecast-view";
 
 export const metadata = {
   title: "Castricity — Multi-horizon Forecast",
-  description: "Multi-horizon demand forecast with what-if scenario analysis.",
+  description: "Peramalan permintaan multi-horizon dengan analisis skenario bagaimana-jika.",
 };
 
 export default function ForecastPage() {

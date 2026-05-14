@@ -2,7 +2,7 @@ import { AnomalyCenterView } from "@/components/features/anomaly-center/anomaly-
 
 export const metadata = {
   title: "Castricity — Anomaly Center",
-  description: "All flagged anomalous demand points across the historical window.",
+  description: "Semua titik permintaan anomali yang ditandai di seluruh jendela historis.",
 };
 
 export default function AnomalyCenterPage() {

@@ -36,15 +36,15 @@ export function Hero() {
         </h1>
         
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
-          Unleash the power of AI-driven electricity demand forecasting. Castricity provides 
-          operations dashboards, anomaly detection, and explainable AI insights 
-          for modern grid management.
+          Manfaatkan kekuatan peramalan permintaan listrik berbasis AI. Castricity menyediakan 
+          dasbor operasional, deteksi anomali, dan wawasan AI yang dapat dijelaskan 
+          untuk manajemen jaringan listrik modern.
         </p>
         
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link href="/dashboard">
             <Button size="lg" className="h-12 px-8 text-base font-bold bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto">
-              View Dashboard <ArrowRight className="ml-2 size-4" />
+              Lihat Dashboard <ArrowRight className="ml-2 size-4" />
             </Button>
           </Link>
         </div>

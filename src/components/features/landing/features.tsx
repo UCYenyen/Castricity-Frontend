@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 const features = [
   {
     title: "AI-Powered Forecasts",
-    description: "State-of-the-art XGBoost models provide day-ahead and week-ahead demand predictions.",
+    description: "Model XGBoost mutakhir memberikan prediksi permintaan harian dan mingguan.",
     icon: LineChart,
     accent: "text-accent-green",
     bg: "bg-accent-green/10",
@@ -12,7 +12,7 @@ const features = [
   },
   {
     title: "Anomaly Detection",
-    description: "Automatically identify heatwaves, solar drops, and anomalous consumption patterns.",
+    description: "Identifikasi otomatis gelombang panas, penurunan tenaga surya, dan pola konsumsi anomali.",
     icon: ShieldAlert,
     accent: "text-accent-red",
     bg: "bg-accent-red/10",
@@ -20,7 +20,7 @@ const features = [
   },
   {
     title: "Explainable AI",
-    description: "Dive into what-if scenarios and understand the exact factors driving demand spikes.",
+    description: "Jelajahi skenario bagaimana-jika dan pahami faktor-faktor penyebab lonjakan permintaan.",
     icon: BrainCircuit,
     accent: "text-accent-purple",
     bg: "bg-accent-purple/10",
@@ -34,10 +34,10 @@ export function Features() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Everything you need for grid operations
+            Semua yang Anda butuhkan untuk operasi jaringan listrik
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Built for operators, data scientists, and energy analysts.
+            Dirancang untuk operator, ilmuwan data, dan analis energi.
           </p>
         </div>
         

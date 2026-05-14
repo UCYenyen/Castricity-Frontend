@@ -18,12 +18,12 @@ import { MultiHorizonChart } from "./multi-horizon-chart";
 import { WhatIfPanel } from "./whatif-panel";
 
 const HORIZON_PRESETS = [
-  { v: 7, l: "7 days" },
-  { v: 30, l: "30 days" },
-  { v: 90, l: "90 days" },
-  { v: 180, l: "180 days" },
-  { v: 365, l: "1 year" },
-  { v: 730, l: "2 years" },
+  { v: 7, l: "7 hari" },
+  { v: 30, l: "30 hari" },
+  { v: 90, l: "90 hari" },
+  { v: 180, l: "180 hari" },
+  { v: 365, l: "1 tahun" },
+  { v: 730, l: "2 tahun" },
 ] as const;
 
 export function ForecastView() {
@@ -44,7 +44,7 @@ export function ForecastView() {
       setSelected((prev) => prev ?? data[0] ?? null);
     } catch (e) {
       if ((e as { name?: string }).name === "AbortError") return;
-      setError(e instanceof ApiError ? e.message : "Failed to load forecast");
+      setError(e instanceof ApiError ? e.message : "Gagal memuat peramalan");
     } finally {
       if (!signal.aborted) setLoading(false);
     }
@@ -79,7 +79,7 @@ export function ForecastView() {
             Multi-horizon forecast
           </h1>
           <p className="text-sm text-text-muted">
-            Hybrid Prophet + LightGBM projection. Click a day on the chart to load it into the what-if panel.
+            Proyeksi hybrid Prophet + LightGBM. Klik satu hari pada grafik untuk memuat ke panel bagaimana-jika.
           </p>
         </div>
         <div className="flex items-end gap-3">
@@ -94,7 +94,7 @@ export function ForecastView() {
               onValueChange={(v) => setHorizon(Number(v))}
             >
               <SelectTrigger className="h-9 w-32 text-xs">
-                <SelectValue placeholder="Custom" />
+                <SelectValue placeholder="Kustom" />
               </SelectTrigger>
               <SelectContent>
                 {HORIZON_PRESETS.map((o) => (
@@ -107,7 +107,7 @@ export function ForecastView() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-              Custom (days)
+              Kustom (hari)
             </Label>
             <Input
               type="number"
@@ -123,11 +123,11 @@ export function ForecastView() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-              Confidence band
+              Pita keyakinan
             </Label>
             <div className="flex items-center gap-2 h-9">
               <Switch checked={showBand} onCheckedChange={setShowBand} />
-              <span className="text-xs text-text-secondary">{showBand ? "On" : "Off"}</span>
+              <span className="text-xs text-text-secondary">{showBand ? "Aktif" : "Nonaktif"}</span>
             </div>
           </div>
         </div>
@@ -135,16 +135,16 @@ export function ForecastView() {
 
       {summary && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <SummaryTile label="Peak (MW)" value={fmtMW(summary.peak.predicted)} accent="text-accent-red" />
-          <SummaryTile label="Average (MW)" value={fmtMW(summary.avg)} accent="text-foreground" />
-          <SummaryTile label="Trough (MW)" value={fmtMW(summary.trough.predicted)} accent="text-accent-green" />
+          <SummaryTile label="Puncak (MW)" value={fmtMW(summary.peak.predicted)} accent="text-accent-red" />
+          <SummaryTile label="Rata-rata (MW)" value={fmtMW(summary.avg)} accent="text-foreground" />
+          <SummaryTile label="Lembah (MW)" value={fmtMW(summary.trough.predicted)} accent="text-accent-green" />
         </div>
       )}
 
       {error && (
         <Alert variant="destructive">
           <AlertTriangle size={16} />
-          <AlertTitle>Couldn&apos;t load forecast</AlertTitle>
+          <AlertTitle>Gagal memuat peramalan</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -152,7 +152,7 @@ export function ForecastView() {
       <Card>
         <CardHeader>
           <CardTitle className="text-sm">
-            Forecast trajectory · next {horizon} days
+            Trajektori peramalan · {horizon} hari ke depan
             {bounds && (
               <span className="mono ml-2 text-[11px] font-normal text-text-muted">
                 ({bounds.min.toISOString().slice(0, 10)} → {bounds.max.toISOString().slice(0, 10)})
@@ -160,8 +160,8 @@ export function ForecastView() {
             )}
           </CardTitle>
           <CardDescription className="text-text-muted text-xs">
-            Forecast starts the day after the training set ends ({bounds ? bounds.min.toISOString().slice(0, 10) : "—"}), not today.
-            Hover for daily values, click to lock a date.
+            Peramalan dimulai sehari setelah set pelatihan berakhir ({bounds ? bounds.min.toISOString().slice(0, 10) : "—"}), bukan hari ini.
+            Arahkan kursor untuk nilai harian, klik untuk mengunci tanggal.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -169,7 +169,7 @@ export function ForecastView() {
             {loading ? (
               <div className="flex h-full items-center justify-center text-text-muted text-xs">
                 <Loader2 size={14} className="mr-2 animate-spin" />
-                Loading forecast…
+                Memuat peramalan…
               </div>
             ) : (
               <MultiHorizonChart

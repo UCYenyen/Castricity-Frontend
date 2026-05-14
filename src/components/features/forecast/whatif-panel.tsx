@@ -61,7 +61,7 @@ export function WhatIfPanel({ selectedDate, onDateChange, minDate, maxDate }: Pr
       });
       setResult(r);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "What-if failed");
+      setError(e instanceof Error ? e.message : "Skenario bagaimana-jika gagal");
     } finally {
       setLoading(false);
     }
@@ -77,17 +77,17 @@ export function WhatIfPanel({ selectedDate, onDateChange, minDate, maxDate }: Pr
       <CardHeader>
         <CardTitle className="text-sm flex items-center gap-2">
           <FlaskConical size={14} className="text-accent-purple" />
-          What-if scenario
+          Skenario bagaimana-jika
         </CardTitle>
         <CardDescription className="text-text-muted text-xs">
-          Adjust parameters and simulate demand impact
+          Sesuaikan parameter dan simulasikan dampak permintaan
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
           <div className="space-y-1.5">
             <Label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-              Target date
+              Tanggal target
             </Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -113,7 +113,7 @@ export function WhatIfPanel({ selectedDate, onDateChange, minDate, maxDate }: Pr
           </div>
           <div className="space-y-1.5">
             <Label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-              Avg temperature (°C)
+              Suhu rata-rata (°C)
             </Label>
             <Input
               type="text"
@@ -126,7 +126,7 @@ export function WhatIfPanel({ selectedDate, onDateChange, minDate, maxDate }: Pr
           </div>
           <div className="space-y-1.5">
             <Label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-              Rainfall (mm)
+              Curah hujan (mm)
             </Label>
             <Input
               type="text"
@@ -139,12 +139,12 @@ export function WhatIfPanel({ selectedDate, onDateChange, minDate, maxDate }: Pr
           </div>
           <div className="space-y-1.5">
             <Label className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-              Public holiday
+              Hari libur nasional
             </Label>
             <div className="flex items-center gap-2 h-9">
               <Switch checked={holiday} onCheckedChange={setHoliday} />
               <span className="text-xs text-text-secondary">
-                {holiday ? "Yes" : "No"}
+                {holiday ? "Ya" : "Tidak"}
               </span>
             </div>
           </div>
@@ -154,7 +154,7 @@ export function WhatIfPanel({ selectedDate, onDateChange, minDate, maxDate }: Pr
             ) : (
               <FlaskConical size={14} className="mr-1.5" />
             )}
-            Run scenario
+            Jalankan skenario
           </Button>
         </div>
 
@@ -165,12 +165,12 @@ export function WhatIfPanel({ selectedDate, onDateChange, minDate, maxDate }: Pr
         {result && (
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <ResultCard
-              label="Predicted demand"
+              label="Permintaan terprediksi"
               value={`${fmtMW(result.predicted)} MW`}
               accent="text-accent-cyan-2"
             />
             <ResultCard
-              label="Baseline"
+              label="Acuan dasar"
               value={`${fmtMW(result.baseline)} MW`}
               accent="text-text-secondary"
             />

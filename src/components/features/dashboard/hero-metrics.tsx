@@ -21,16 +21,16 @@ export function HeroMetrics({ history, future, peak, metrics }: Props) {
       <MetricTile
         hero
         corner={fmtTime(peak.t, { withDate: true })}
-        label="Tomorrow's peak demand"
+        label="Puncak permintaan besok"
         value={fmtMW(peak.predicted)}
         unit="MW"
-        trend={{ dir: "up", text: "2.1% vs 7d avg" }}
+        trend={{ dir: "up", text: "2,1% vs rata-rata 7h" }}
         badge={{ tone: "cyan", text: `±${fmtMW((peak.p90 - peak.p10) / 2)} MW (P10–P90)` }}
         accent="cyan"
         sparkline={peakHourSpark}
       />
       <MetricTile
-        label="Forecast accuracy · MAPE"
+        label="Akurasi peramalan · MAPE"
         value={metrics.mape.toFixed(2)}
         unit="%"
         accent="green"

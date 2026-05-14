@@ -28,10 +28,10 @@ const SEV_CLASS: Record<Severity, string> = {
 type SevFilter = "all" | Severity;
 
 const HISTORY_OPTIONS = [
-  { v: 24, label: "Last 24h" },
-  { v: 72, label: "Last 3d" },
-  { v: 168, label: "Last 7d" },
-  { v: 720, label: "Last 30d" },
+  { v: 24, label: "24 jam terakhir" },
+  { v: 72, label: "3 hari terakhir" },
+  { v: 168, label: "7 hari terakhir" },
+  { v: 720, label: "30 hari terakhir" },
 ] as const;
 
 const ITEMS_PER_PAGE = 10;
@@ -75,7 +75,7 @@ export function AnomalyCenterView() {
         <div>
           <h1 className="text-xl font-semibold text-foreground">Anomaly Center</h1>
           <p className="text-sm text-text-muted">
-            Every anomalous demand point flagged by the model, plotted in context.
+            Setiap titik permintaan anomali yang ditandai oleh model, ditampilkan dalam konteks.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export function AnomalyCenterView() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all" className="text-xs">All severities</SelectItem>
+              <SelectItem value="all" className="text-xs">Semua tingkat</SelectItem>
               <SelectItem value="critical" className="text-xs">Critical</SelectItem>
               <SelectItem value="warning" className="text-xs">Warning</SelectItem>
               <SelectItem value="info" className="text-xs">Info</SelectItem>
@@ -108,7 +108,7 @@ export function AnomalyCenterView() {
             ) : (
               <RefreshCcw size={14} />
             )}
-            <span className="ml-1.5 text-xs">Refresh</span>
+            <span className="ml-1.5 text-xs">Perbarui</span>
           </Button>
         </div>
       </header>
@@ -123,7 +123,7 @@ export function AnomalyCenterView() {
       {error && (
         <Alert variant="destructive">
           <AlertTriangle size={16} />
-          <AlertTitle>Couldn&apos;t load anomalies</AlertTitle>
+          <AlertTitle>Gagal memuat anomali</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -156,9 +156,9 @@ export function AnomalyCenterView() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">All anomalies</CardTitle>
+          <CardTitle className="text-sm">Semua anomali</CardTitle>
           <CardDescription className="text-text-muted text-xs">
-            {filtered.length} {sev === "all" ? "total" : sev} · scoped to window
+            {filtered.length} {sev === "all" ? "total" : sev} · dalam jendela waktu
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
@@ -166,20 +166,20 @@ export function AnomalyCenterView() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[40px]">#</TableHead>
-                <TableHead className="w-[110px]">Severity</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead className="hidden md:table-cell">Asset</TableHead>
-                <TableHead className="hidden md:table-cell">When</TableHead>
+                <TableHead className="w-[110px]">Tingkat</TableHead>
+                <TableHead>Judul</TableHead>
+                <TableHead className="hidden md:table-cell">Aset</TableHead>
+                <TableHead className="hidden md:table-cell">Waktu</TableHead>
                 <TableHead className="text-right">Δ (MW)</TableHead>
-                <TableHead className="text-right hidden lg:table-cell">Actual</TableHead>
-                <TableHead className="text-right hidden lg:table-cell">Predicted</TableHead>
+                <TableHead className="text-right hidden lg:table-cell">Aktual</TableHead>
+                <TableHead className="text-right hidden lg:table-cell">Prediksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.length === 0 && !loading ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center text-xs text-text-muted py-8">
-                    No anomalies in this window.
+                    Tidak ada anomali dalam jendela waktu ini.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -227,7 +227,7 @@ export function AnomalyCenterView() {
           {filtered.length > ITEMS_PER_PAGE && (
             <div className="flex items-center justify-between border-t border-border px-4 py-3">
               <div className="text-xs text-text-muted">
-                Showing {(page - 1) * ITEMS_PER_PAGE + 1} to {Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} entries
+                Menampilkan {(page - 1) * ITEMS_PER_PAGE + 1} sampai {Math.min(page * ITEMS_PER_PAGE, filtered.length)} dari {filtered.length} entri
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -237,7 +237,7 @@ export function AnomalyCenterView() {
                   disabled={page === 1}
                   className="h-8 text-xs"
                 >
-                  <ChevronLeft size={14} className="mr-1" /> Prev
+                  <ChevronLeft size={14} className="mr-1" /> Sebelumnya
                 </Button>
                 <Button
                   variant="outline"
@@ -246,7 +246,7 @@ export function AnomalyCenterView() {
                   disabled={page === totalPages || totalPages === 0}
                   className="h-8 text-xs"
                 >
-                  Next <ChevronRight size={14} className="ml-1" />
+                  Berikutnya <ChevronRight size={14} className="ml-1" />
                 </Button>
               </div>
             </div>
@@ -296,7 +296,7 @@ export function AnomalyCenterView() {
               {selected.point.data?.factors && selected.point.data.factors.length > 0 && (
                 <div className="mt-4 flex flex-col gap-1.5">
                   <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                    Contributing factors
+                    Faktor kontribusi
                   </div>
                   {selected.point.data.factors.map((f, i) => (
                     <div

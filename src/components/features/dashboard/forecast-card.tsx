@@ -36,16 +36,16 @@ export function ForecastCard({
   return (
     <Card className="min-h-130">
       <CardHeader>
-        <CardTitle>Next forecast</CardTitle>
+        <CardTitle>Peramalan berikutnya</CardTitle>
         <CardDescription className="text-text-muted">
-          Issued {fmtTime(now)} · resolution 1h · model demand-xgb-v2.4
+          Diterbitkan {fmtTime(now)} · resolusi 1j · model demand-xgb-v2.4
         </CardDescription>
         <CardAction>
           <Segmented
             options={HORIZON_OPTS}
             value={futureHours}
             onChange={onFutureHours}
-            ariaLabel="Forecast horizon"
+            ariaLabel="Horizon peramalan"
           />
         </CardAction>
       </CardHeader>
@@ -57,19 +57,19 @@ export function ForecastCard({
             disabled
             onChange={() => {}}
             swatch={<Swatch color={accent} />}
-            label="Forecast"
+            label="Peramalan"
           />
           <LegendItem
             checked={showBand}
             onChange={onShowBand}
             swatch={<SwatchBand />}
-            label="P10–P90 band"
+            label="Pita P10–P90"
           />
           <LegendItem
             checked={showHistOnForecast}
             onChange={onShowHistOnForecast}
             swatch={<Swatch color="rgba(148,163,184,0.6)" />}
-            label="24h context"
+            label="Konteks 24j"
           />
         </div>
 
@@ -87,17 +87,17 @@ export function ForecastCard({
 
         <div className="mt-3.5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           <Callout
-            label="Day-ahead peak"
+            label="Puncak harian"
             value={`${fmtMW(peak.predicted)} MW`}
             time={fmtTime(peak.t, { withDate: true })}
             sub={`P10 ${fmtMW(peak.p10)} · P90 ${fmtMW(peak.p90)}`}
             accent="text-accent-cyan-2"
           />
           <Callout
-            label="Trough"
+            label="Lembah"
             value={`${fmtMW(trough.predicted)} MW`}
             time={fmtTime(trough.t, { withDate: true })}
-            sub={`Daily ramp ${fmtMW(peak.predicted - trough.predicted)} MW`}
+            sub={`Ramp harian ${fmtMW(peak.predicted - trough.predicted)} MW`}
             accent="text-accent-green"
           />
         </div>

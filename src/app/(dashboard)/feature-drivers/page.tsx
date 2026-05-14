@@ -1,7 +1,10 @@
-import React from 'react'
+import { FeatureDriversView } from "@/components/features/feature-drivers/feature-drivers-view";
 
-export default function page() {
-  return (
-    <div>page</div>
-  )
+export const metadata = {
+  title: "Castricity — Feature Drivers",
+  description: "Fitur-fitur yang digunakan model dan tingkat kepentingan SHAP global.",
+};
+
+export default function FeatureDriversPage() {
+  return <FeatureDriversView />;
 }

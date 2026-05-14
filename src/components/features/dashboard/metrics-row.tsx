@@ -44,23 +44,23 @@ export function MetricsRow({ metrics }: { metrics: Metrics }) {
         label="MAPE"
         value={metrics.mape.toFixed(2)}
         unit="%"
-        sub="Mean abs % error"
+        sub="Rata-rata galat % absolut"
         tone={metrics.mape < 2.5 ? "good" : metrics.mape < 4 ? "warn" : "bad"}
       />
-      <VM label="RMSE" value={fmtMW(metrics.rmse)} unit="MW" sub="Root mean sq err" tone="info" />
-      <VM label="MAE" value={fmtMW(metrics.mae)} unit="MW" sub="Mean abs error" tone="info" />
+      <VM label="RMSE" value={fmtMW(metrics.rmse)} unit="MW" sub="Akar rata-rata galat kuadrat" tone="info" />
+      <VM label="MAE" value={fmtMW(metrics.mae)} unit="MW" sub="Rata-rata galat absolut" tone="info" />
       <VM
         label="Bias"
         value={fmtSigned(metrics.bias, 0)}
         unit="MW"
-        sub="Mean residual"
+        sub="Rata-rata residual"
         tone={Math.abs(metrics.bias) < 30 ? "good" : "warn"}
       />
       <VM
         label="Hit · ±3%"
         value={metrics.hit.toFixed(0)}
         unit="%"
-        sub="In tolerance"
+        sub="Dalam toleransi"
         tone={metrics.hit > 80 ? "good" : metrics.hit > 60 ? "warn" : "bad"}
       />
     </div>

@@ -116,16 +116,16 @@ export function DashboardView() {
         <div className="flex items-end justify-between gap-6 flex-wrap">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight m-0">
-              Operations dashboard
+              Dasbor operasional
             </h1>
             <div className="text-[13px] mt-1 text-muted-foreground">
-              {region.name} · forecast horizon {futureHours}h ·{" "}
+              {region.name} · horizon peramalan {futureHours}j ·{" "}
               <span className="mono ml-1 text-accent-cyan-2">{region.code}</span>
             </div>
           </div>
           <div className="mono text-[11px] flex items-center gap-1.5 text-muted-foreground">
             <span className="pulse-dot" />
-            {error ? "Disconnected" : refreshing ? "Refreshing…" : `Updated ${fmtTime(now)}`}
+            {error ? "Terputus" : refreshing ? "Memperbarui…" : `Diperbarui ${fmtTime(now)}`}
           </div>
         </div>
 
@@ -133,7 +133,7 @@ export function DashboardView() {
           <div className="flex items-start gap-3 rounded-xl border border-accent-red/40 bg-accent-red/10 px-4 py-3 text-sm text-red-200">
             <AlertTriangle size={16} className="mt-0.5 shrink-0" />
             <div>
-              <div className="font-semibold">Failed to load dashboard data</div>
+              <div className="font-semibold">Gagal memuat data dasbor</div>
               <div className="mono mt-1 text-[12px] text-red-300/80">{error}</div>
             </div>
           </div>
@@ -197,8 +197,8 @@ export function DashboardView() {
             {explainPt && <Explainer point={explainPt} onClose={() => setExplainPt(null)} />}
 
             <div className="mono text-[11px] text-center py-3 text-text-faint tracking-[0.04em]">
-              CASTRICITY · operations dashboard · {data.history.length} obs ·{" "}
-              {futureSlice.length} forecast pts · last refresh {fmtTime(now)}
+              CASTRICITY · dasbor operasional · {data.history.length} obs ·{" "}
+              {futureSlice.length} titik peramalan · pembaruan terakhir {fmtTime(now)}
             </div>
           </>
         )}

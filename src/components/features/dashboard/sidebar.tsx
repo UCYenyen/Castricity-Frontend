@@ -35,7 +35,7 @@ interface NavItem {
 
 const NAV: NavGroup[] = [
   {
-    label: "Operations",
+    label: "Operasi",
     items: [
       { id: "dash", label: "Dashboard", icon: LayoutGrid, href: "/dashboard" },
       { id: "fcst", label: "Forecast", icon: LineChart, href: "/forecast" },
@@ -49,9 +49,9 @@ const NAV: NavGroup[] = [
     ],
   },
   {
-    label: "System",
+    label: "Sistem",
     items: [
-      { id: "doc", label: "Guidebook", href:"/guidebook" ,icon: BookOpen },
+      { id: "doc", label: "Panduan", href:"/guidebook" ,icon: BookOpen },
     ],
   },
 ];
@@ -78,7 +78,7 @@ export function DashboardSidebar(): ReactNode {
               Castricity
             </div>
             <div className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-              Demand forecasting
+              Peramalan permintaan
             </div>
           </Link>
         </div>
@@ -133,7 +133,7 @@ export function DashboardSidebar(): ReactNode {
         <div className="px-2 py-1.5 text-[11px] text-muted-foreground">
           <div className="mb-1.5 flex items-center gap-2">
             <span className="pulse-dot" />
-            <span>Ingest stream live</span>
+            <span>Aliran data aktif</span>
           </div>
           <div className="mono text-[10px] text-text-faint">
             v2.4.1 · build a17f3

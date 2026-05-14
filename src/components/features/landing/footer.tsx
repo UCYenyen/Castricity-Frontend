@@ -23,22 +23,22 @@ export function Footer() {
               </span>
             </div>
             <p className="text-sm text-muted-foreground max-w-xs">
-              The next-generation demand forecasting platform built for modern electricity grid operations.
+              Platform peramalan permintaan listrik generasi terbaru yang dirancang untuk operasi jaringan listrik modern.
             </p>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">Product</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Produk</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="/dashboard" className="hover:text-foreground transition-colors">Operations Dashboard</Link></li>
-              <li><Link href="/live" className="hover:text-foreground transition-colors">Live Forecaster</Link></li>
+              <li><Link href="/dashboard" className="hover:text-foreground transition-colors">Dasbor Operasional</Link></li>
+              <li><Link href="/live" className="hover:text-foreground transition-colors">Peramal Langsung</Link></li>
               <li><Link href="#" className="hover:text-foreground transition-colors">Anomaly Center</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">Connect</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Terhubung</h3>
             <Link href="/dashboard">
               <Button variant="outline" className="w-full text-sm">
-                Open App <ArrowRight className="ml-2 size-3" />
+                Buka Aplikasi <ArrowRight className="ml-2 size-3" />
               </Button>
             </Link>
           </div>

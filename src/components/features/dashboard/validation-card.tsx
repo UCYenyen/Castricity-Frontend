@@ -33,14 +33,14 @@ export function ValidationCard({
   const [showError, setShowError] = useState(true);
 
   const headerSub = useMemo(
-    () => `Predicted vs actual · ${slicedCount} day${slicedCount === 1 ? "" : "s"}`,
+    () => `Prediksi vs aktual · ${slicedCount} hari`,
     [slicedCount]
   );
 
   return (
     <Card className="min-h-130">
       <CardHeader>
-        <CardTitle>Historical validation</CardTitle>
+        <CardTitle>Validasi historis</CardTitle>
         <CardDescription className="text-text-muted">{headerSub}</CardDescription>
         <CardAction>
           <DateRangePicker
@@ -60,26 +60,26 @@ export function ValidationCard({
             checked={showActual}
             onChange={setShowActual}
             swatch={<Swatch color={accent} />}
-            label="Actual"
+            label="Aktual"
           />
           <LegendItem
             checked={showPredicted}
             onChange={setShowPredicted}
             swatch={<SwatchDashed />}
-            label="Predicted"
+            label="Prediksi"
           />
           <LegendItem
             checked={showError}
             onChange={setShowError}
             swatch={<Swatch color="rgba(239,68,68,0.7)" />}
-            label="Error band"
+            label="Pita galat"
           />
           <div className="ml-auto">
             <LegendItem
               checked={errorAsPct}
               onChange={onErrorAsPct}
               swatch={null}
-              label="Error as %"
+              label="Galat sbg %"
             />
           </div>
         </div>

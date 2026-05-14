@@ -140,9 +140,9 @@ export function computeMetrics(history: HistoryPoint[]): Metrics {
 
 export const ANOMALY_DETAILS: Record<AnomalyKey, AnomalyDetail> = {
   heatwave: {
-    title: "Demand exceeded forecast",
+    title: "Permintaan melampaui peramalan",
     sev: "critical",
-    desc: "Sustained heat-wave drove cooling load 6.4% above forecast for 5 hours.",
+    desc: "Gelombang panas berkepanjangan mendorong beban pendingin 6,4% di atas peramalan selama 5 jam.",
     factors: [
       { k: "Temp dev (+4.1°C)", v: "+312 MW", w: 0.62, sign: 1 },
       { k: "Humidity (+18%)", v: "+108 MW", w: 0.22, sign: 1 },
@@ -151,9 +151,9 @@ export const ANOMALY_DETAILS: Record<AnomalyKey, AnomalyDetail> = {
     ],
   },
   "solar-drop": {
-    title: "Behind-meter solar shortfall",
+    title: "Kekurangan tenaga surya di balik meter",
     sev: "warning",
-    desc: "Cloud bank over coastal belt cut PV generation; net demand jumped ahead of dispatch.",
+    desc: "Lapisan awan di atas sabuk pesisir memangkas pembangkitan PV; permintaan bersih melonjak mendahului pengiriman.",
     factors: [
       { k: "Solar irradiance", v: "+186 MW", w: 0.71, sign: 1 },
       { k: "Cloud cover", v: "+44 MW", w: 0.18, sign: 1 },
@@ -168,12 +168,12 @@ export function pointExplainer(point: ExplainerPoint): ExplainerData {
   const err = (actual ?? point.predicted) - point.predicted;
   const errPct = (err / point.predicted) * 100;
   return {
-    title: actual != null ? "Forecast factor breakdown" : "Forecast drivers",
+    title: actual != null ? "Rincian faktor peramalan" : "Pendorong peramalan",
     sev: "info",
     desc:
       actual != null
-        ? `Realized demand was ${err >= 0 ? "above" : "below"} forecast by ${Math.abs(errPct).toFixed(2)}%.`
-        : "Model attribution for predicted demand at this hour.",
+        ? `Permintaan realisasi ${err >= 0 ? "di atas" : "di bawah"} peramalan sebesar ${Math.abs(errPct).toFixed(2)}%.`
+        : "Atribusi model untuk permintaan terprediksi pada jam ini.",
     factors: [
       { k: "Hour-of-day baseline", v: `${(point.predicted * 0.62).toFixed(0)} MW`, w: 0.62, sign: 1 },
       { k: "Day-of-week", v: `${(point.predicted * 0.18).toFixed(0)} MW`, w: 0.18, sign: 1 },

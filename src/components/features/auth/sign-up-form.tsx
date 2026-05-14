@@ -24,10 +24,12 @@ export function SignUpForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
     password?: string;
+    confirmPassword?: string;
   }>({});
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +37,7 @@ export function SignUpForm() {
     e.preventDefault();
     setErrors({});
 
-    const parsed = signUpSchema.safeParse({ name, email, password });
+    const parsed = signUpSchema.safeParse({ name, email, password, confirmPassword });
     if (!parsed.success) {
       const fieldErrors: typeof errors = {};
       for (const issue of parsed.error.issues) {
@@ -117,6 +119,21 @@ export function SignUpForm() {
             />
             {errors.password && (
               <p className="text-xs text-accent-red">{errors.password}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="confirmPassword">Konfirmasi Kata Sandi</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={loading}
+              aria-invalid={!!errors.confirmPassword}
+            />
+            {errors.confirmPassword && (
+              <p className="text-xs text-accent-red">{errors.confirmPassword}</p>
             )}
           </div>
         </CardContent>

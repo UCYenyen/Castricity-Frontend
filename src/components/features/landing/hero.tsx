@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ArrowRight, Activity, ShieldCheck, Zap, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import RotatingEarth from "@/components/ui/wireframe-dotted-globe";
 
 interface Particle {
   w: number;
@@ -105,18 +106,10 @@ export function Hero() {
 
         {/* Hero Central Map Area */}
         <div className="relative w-full max-w-5xl mx-auto h-[400px] sm:h-[500px] group perspective-1000">
-          {/* Central Map */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden rounded-2xl transform transition-transform duration-700 group-hover:scale-[1.02]">
-            {/* The provided image */}
-            <div className="relative w-full max-w-4xl opacity-90 mix-blend-screen drop-shadow-[0_0_30px_rgba(6,182,212,0.5)]">
-              <img 
-                src="/indonesia-map.png" 
-                alt="Peta Jaringan Listrik Indonesia" 
-                className="w-full h-auto object-contain animate-pulse"
-                style={{ animationDuration: '4s' }}
-              />
-              {/* Holographic Scanner overlay on the map */}
-              <div className="holo-scanner" />
+          {/* Rotating wireframe globe */}
+          <div className="absolute inset-0 flex items-center justify-center rounded-2xl transform transition-transform duration-700 group-hover:scale-[1.02]">
+            <div className="relative w-full h-full max-w-4xl drop-shadow-[0_0_30px_rgba(6,182,212,0.5)]">
+              <RotatingEarth width={800} height={600} className="w-full h-full" />
             </div>
           </div>
 

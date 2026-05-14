@@ -1,0 +1,18 @@
+services:
+  castricity-frontend:
+    image: ghcr.io/${IMAGE_NAME}:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: castricity-frontend
+    restart: unless-stopped
+    expose:
+      - "3000"
+    env_file:
+      - .env
+    networks:
+      - global_proxy
+
+networks:
+  global_proxy:
+    external: true

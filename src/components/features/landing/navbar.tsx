@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/auth-client";
 
 export function Navbar() {
+  const { data: session, isPending } = useSession();
+  const isAuthed = !!session;
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -33,16 +36,28 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" className="hidden sm:inline-flex">
-              Sign In
-            </Button>
-          </Link>
-          <Link href="/dashboard">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-              Go to Dashboard
-            </Button>
-          </Link>
+          {isPending ? (
+            <div className="h-9 w-32 rounded-md bg-muted/40 animate-pulse" />
+          ) : isAuthed ? (
+            <Link href="/dashboard">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                Go to Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/sign-in">
+                <Button variant="ghost" className="hidden sm:inline-flex">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/sign-up">
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  Sign Up
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>

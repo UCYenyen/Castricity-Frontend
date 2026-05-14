@@ -1,516 +1,421 @@
-# 📘 Castricity — Application Guidebook
+# 📘 Castricity — Panduan Pengguna
 
-> **Castricity** is an AI-powered electricity demand forecasting platform built with Next.js 16, React 19, and a Python FastAPI backend. It provides an operational dashboard, multi-horizon forecasting, anomaly detection, and explainable AI (XAI) capabilities for modern power grid management.
-
----
-
-## Table of Contents
-
-1. [Technology Stack](#1-technology-stack)
-2. [Project Structure](#2-project-structure)
-3. [Architecture Overview](#3-architecture-overview)
-4. [Authentication Flow](#4-authentication-flow)
-5. [Data Flow & API Proxy](#5-data-flow--api-proxy)
-6. [Feature Modules](#6-feature-modules)
-7. [Component Architecture](#7-component-architecture)
-8. [Custom Hooks](#8-custom-hooks)
-9. [Type System & Validation](#9-type-system--validation)
-10. [Theming & Design System](#10-theming--design-system)
-11. [Navigation Map](#11-navigation-map)
+> **Castricity** adalah platform peramalan permintaan listrik berbasis AI yang menyediakan dasbor operasional, peramalan multi-horizon, deteksi anomali, dan kecerdasan buatan yang dapat dijelaskan (Explainable AI) untuk manajemen jaringan listrik modern.
 
 ---
 
-## 1. Technology Stack
+## Daftar Isi
 
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| Framework | Next.js (App Router + Turbopack) | 16.2.6 |
-| UI Library | React | 19.2.4 |
-| Language | TypeScript | 5.x |
-| Styling | Tailwind CSS v4 + `tw-animate-css` | 4.x |
-| UI Primitives | shadcn/ui + Radix UI | 4.7.0 |
-| Charts | Recharts (+ hand-rolled SVG) | 3.8.0 |
-| Auth | better-auth (email + password) | 1.6.11 |
-| Database | PostgreSQL via Prisma ORM | 7.8.0 |
-| Validation | Zod | 4.4.3 |
-| Backend | Python FastAPI (separate repo) | — |
-| Package Manager | pnpm | — |
+1. [Tentang Castricity](#1-tentang-castricity)
+2. [Memulai — Registrasi & Masuk](#2-memulai--registrasi--masuk)
+3. [Navigasi Aplikasi](#3-navigasi-aplikasi)
+4. [Halaman Beranda](#4-halaman-beranda)
+5. [Dashboard Operasional](#5-dashboard-operasional)
+6. [Forecast (Peramalan Multi-Horizon)](#6-forecast-peramalan-multi-horizon)
+7. [Anomaly Center (Pusat Anomali)](#7-anomaly-center-pusat-anomali)
+8. [Feature Drivers (Pendorong Fitur)](#8-feature-drivers-pendorong-fitur)
+9. [Alur Kerja Pengguna](#9-alur-kerja-pengguna)
+10. [Glosarium](#10-glosarium)
 
 ---
 
-## 2. Project Structure
+## 1. Tentang Castricity
 
-```
-Castricity-Frontend/
-├── prisma/
-│   └── schema.prisma          # User, Session, Account, Verification models
-├── src/
-│   ├── app/                   # Next.js App Router
-│   │   ├── layout.tsx         # Root layout (fonts, Toaster)
-│   │   ├── page.tsx           # Landing page (/)
-│   │   ├── globals.css        # Design tokens + dark theme
-│   │   ├── sign-in/page.tsx   # Sign-in page
-│   │   ├── sign-up/page.tsx   # Sign-up page
-│   │   ├── (dashboard)/       # Route group — shared sidebar layout
-│   │   │   ├── layout.tsx     # SidebarProvider + TooltipProvider
-│   │   │   ├── dashboard/     # /dashboard
-│   │   │   ├── forecast/      # /forecast
-│   │   │   ├── anomaly-center/# /anomaly-center
-│   │   │   └── feature-drivers/# /feature-drivers
-│   │   └── api/               # Next.js API routes (proxy layer)
-│   │       ├── auth/[...all]/ # better-auth catch-all
-│   │       ├── metrics/       # GET → backend /api/metrics
-│   │       ├── anomalies/     # GET → backend /api/anomalies
-│   │       ├── forecast/      # historical, future, whatif
-│   │       └── features/      # features, importance, required
-│   ├── components/
-│   │   ├── ui/                # 55 shadcn primitives (do NOT edit casually)
-│   │   └── features/          # Feature-specific components
-│   │       ├── landing/       # Navbar, Hero, Features, Footer, ShapeGrid
-│   │       ├── auth/          # SignInForm, SignUpForm
-│   │       ├── dashboard/     # DashboardView + 17 sub-components
-│   │       ├── forecast/      # ForecastView, MultiHorizonChart, WhatIfPanel
-│   │       ├── anomaly-center/# AnomalyCenterView, AnomalyChart
-│   │       └── feature-drivers/# FeatureDriversView, ImportanceChart
-│   ├── hooks/                 # 6 custom React hooks
-│   ├── lib/                   # API client, auth, Prisma, helpers
-│   │   ├── api.ts             # Typed fetch client with Zod validation
-│   │   ├── auth.ts            # better-auth server config
-│   │   ├── auth-client.ts     # better-auth React client
-│   │   ├── backend-proxy.ts   # Server-side proxy to FastAPI
-│   │   ├── prisma.ts          # Prisma singleton
-│   │   └── dashboard/         # data.ts (series builder), format.ts
-│   ├── types/                 # TypeScript interfaces
-│   │   ├── api.ts             # Backend response shapes
-│   │   ├── auth.ts            # SignIn/SignUp input types
-│   │   └── dashboard.ts       # Domain types (Series, Metrics, etc.)
-│   ├── validations/           # Zod schemas
-│   │   ├── api.ts             # API response schemas
-│   │   ├── auth.ts            # signInSchema, signUpSchema
-│   │   └── dashboard.ts       # tweaks, regions, horizons
-│   └── proxy.ts               # Middleware (route protection)
-└── .env                       # Environment variables
-```
+Castricity adalah sistem cerdas yang membantu operator jaringan listrik, analis energi, dan ilmuwan data untuk:
+
+- **Memantau** permintaan listrik secara real-time melalui dasbor operasional
+- **Meramalkan** kebutuhan listrik hingga 2 tahun ke depan menggunakan model hybrid Prophet + LightGBM
+- **Mendeteksi** anomali permintaan (lonjakan atau penurunan tidak wajar) secara otomatis
+- **Memahami** faktor-faktor yang memengaruhi prediksi melalui analisis SHAP (Explainable AI)
+- **Mensimulasikan** skenario "bagaimana-jika" untuk melihat dampak perubahan cuaca atau hari libur terhadap permintaan
+
+### Siapa yang Menggunakan Castricity?
+
+| Peran | Kegunaan |
+|-------|----------|
+| Operator jaringan | Memantau permintaan terkini dan mendeteksi anomali lebih dini |
+| Analis energi | Menganalisis tren, peramalan, dan skenario permintaan |
+| Ilmuwan data | Menjelajahi kepentingan fitur model dan kontribusi SHAP |
+| Manajer operasi | Mendapatkan ringkasan metrik akurasi dan peringatan anomali |
 
 ---
 
-## 3. Architecture Overview
+## 2. Memulai — Registrasi & Masuk
 
-```mermaid
-graph TB
-    subgraph Browser["Browser (Client)"]
-        LP["Landing Page /"]
-        AUTH["Sign In / Sign Up"]
-        DASH["Dashboard /dashboard"]
-        FCST["Forecast /forecast"]
-        ANOM["Anomaly Center /anomaly-center"]
-        FEAT["Feature Drivers /feature-drivers"]
-    end
+### Membuat Akun Baru
 
-    subgraph NextJS["Next.js 16 Server"]
-        MW["Middleware (proxy.ts)"]
-        API["API Routes /api/*"]
-        BA["better-auth /api/auth"]
-        PRISMA["Prisma ORM"]
-        PROXY["backend-proxy.ts"]
-    end
+1. Buka halaman utama Castricity
+2. Klik tombol **"Daftar"** di pojok kanan atas
+3. Isi formulir pendaftaran:
+   - **Nama** — nama lengkap Anda (minimal 2 karakter)
+   - **Email** — alamat email aktif
+   - **Kata Sandi** — minimal 8 karakter
+4. Klik **"Buat akun"**
+5. Anda akan langsung diarahkan ke Dashboard
 
-    subgraph Backend["FastAPI Backend :8000"]
-        EP_M["/api/metrics"]
-        EP_H["/api/forecast/historical"]
-        EP_F["/api/forecast/future"]
-        EP_W["/api/forecast/whatif"]
-        EP_A["/api/anomalies"]
-        EP_FE["/api/features"]
-        EP_FI["/api/features/importance"]
-    end
+### Masuk ke Akun
 
-    subgraph DB["PostgreSQL"]
-        USERS["user / session / account"]
-    end
+1. Klik tombol **"Masuk"** di pojok kanan atas halaman utama
+2. Masukkan **Email** dan **Kata Sandi** Anda
+3. Klik **"Masuk"**
+4. Jika berhasil, Anda akan diarahkan ke Dashboard Operasional
 
-    Browser -->|HTTP| MW
-    MW -->|protected?| AUTH
-    MW -->|allowed| API
-    API -->|proxy| PROXY
-    PROXY -->|fetch| Backend
-    BA -->|CRUD| PRISMA
-    PRISMA -->|SQL| DB
-```
+> [!TIP]
+> Jika Anda sudah masuk, tombol di navbar akan berubah menjadi **"Pergi Dashboard"** yang langsung membawa Anda ke ruang kontrol.
 
-### Key Architectural Decisions
+### Perlindungan Halaman
 
-1. **API Proxy Pattern** — The frontend never calls the Python backend directly. All `/api/*` routes in Next.js act as thin proxies via `backend-proxy.ts`, forwarding requests to `BACKEND_URL` (localhost:8000). This keeps the backend URL secret and allows server-side transformations.
-
-2. **Route Group `(dashboard)`** — Parenthesized route group wraps all dashboard pages with a shared layout containing `SidebarProvider`, `TooltipProvider`, and the navigation sidebar without adding a URL segment.
-
-3. **Layered Separation** — Strict split: `types/` → `validations/` → `lib/` → `hooks/` → `components/features/` → `app/` pages. Each feature follows this pipeline.
-
-4. **React Compiler** — `babel-plugin-react-compiler` is enabled, so manual `useMemo`/`useCallback` is avoided unless profiling demands it.
+Halaman Dashboard, Forecast, Anomaly Center, dan Feature Drivers **hanya dapat diakses setelah masuk**. Jika Anda mencoba mengakses halaman tersebut tanpa masuk, sistem akan mengarahkan Anda ke halaman login terlebih dahulu.
 
 ---
 
-## 4. Authentication Flow
+## 3. Navigasi Aplikasi
 
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant FE as Next.js Frontend
-    participant BA as better-auth
-    participant DB as PostgreSQL
+Setelah masuk, Anda akan melihat **sidebar navigasi** di sisi kiri layar. Sidebar ini adalah pusat navigasi Anda di dalam aplikasi.
 
-    U->>FE: Visit /sign-up
-    FE->>FE: Render SignUpForm
-    U->>FE: Submit (name, email, password)
-    FE->>FE: Validate with signUpSchema (Zod)
-    FE->>BA: signUp.email({ name, email, password })
-    BA->>DB: INSERT user, account
-    BA-->>FE: Set session cookie
-    FE->>FE: router.push("/dashboard")
+### Struktur Menu Sidebar
 
-    Note over FE: On subsequent visits...
-
-    U->>FE: Visit /dashboard
-    FE->>FE: Middleware checks cookie
-    alt No session cookie
-        FE-->>U: Redirect → /sign-in?redirect=/dashboard
-    else Has cookie
-        FE-->>U: Render dashboard
-    end
+```
+┌──────────────────────────┐
+│  C  Castricity           │
+│     Peramalan permintaan  │
+├──────────────────────────┤
+│  OPERASI                 │
+│  ┣ 📊 Dashboard          │
+│  ┣ 📈 Forecast           │
+│  ┗ ⚠️ Anomaly Center     │
+├──────────────────────────┤
+│  DATA                    │
+│  ┗ 🔀 Feature Drivers    │
+├──────────────────────────┤
+│  SISTEM                  │
+│  ┗ 📖 Panduan            │
+├──────────────────────────┤
+│  🟢 Aliran data aktif    │
+│  v2.4.1 · build a17f3    │
+└──────────────────────────┘
 ```
 
-### Auth Components
+| Menu | Fungsi |
+|------|--------|
+| **Dashboard** | Ringkasan operasional: metrik utama, validasi model, dan anomali terkini |
+| **Forecast** | Peramalan multi-horizon (7 hari hingga 2 tahun) + simulasi bagaimana-jika |
+| **Anomaly Center** | Daftar lengkap titik anomali yang terdeteksi oleh model |
+| **Feature Drivers** | Katalog fitur model beserta tingkat kepentingan SHAP |
+| **Panduan** | Buku panduan ini |
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| `SignInForm` | `features/auth/sign-in-form.tsx` | Email + password login with Zod validation |
-| `SignUpForm` | `features/auth/sign-up-form.tsx` | Registration with name, email, password |
-| `Navbar` | `features/landing/navbar.tsx` | Session-aware: shows "Dashboard" if authed, "Sign In/Sign Up" if not |
-
-### Middleware Route Protection
-
-[proxy.ts](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/proxy.ts) protects `/dashboard` and `/predict` prefixes. If no `better-auth.session_token` cookie is found, the user is redirected to `/sign-in`. Conversely, authenticated users visiting `/sign-in` or `/sign-up` are redirected to `/dashboard`.
+> [!NOTE]
+> Di layar kecil (mobile), sidebar akan tersembunyi. Klik ikon hamburger (☰) di pojok kiri atas untuk membukanya.
 
 ---
 
-## 5. Data Flow & API Proxy
+## 4. Halaman Beranda
 
-### Proxy Architecture
+Halaman beranda (`/`) adalah halaman publik yang menampilkan informasi umum tentang Castricity. Halaman ini terdiri dari:
 
-```
-Browser → /api/metrics?split=test
-       → Next.js API Route (route.ts)
-       → proxyToBackend("/metrics?split=test")
-       → fetch("http://localhost:8000/api/metrics?split=test")
-       → Response piped back to browser
-```
-
-All API routes use `export const dynamic = "force-dynamic"` to bypass caching.
-
-### API Client (`lib/api.ts`)
-
-The typed API client provides these functions:
-
-| Function | Endpoint | Returns |
-|----------|----------|---------|
-| `getMetrics(split?)` | `GET /metrics` | `Metrics` (MAE, RMSE, MAPE, R²) |
-| `getHistorical(start?, end?)` | `GET /forecast/historical` | `HistoryPoint[]` |
-| `getFuture(days?)` | `GET /forecast/future?days=N` | `ForecastPoint[]` |
-| `getAnomalies()` | `GET /anomalies` | `AnomalyEntry[]` |
-| `runWhatIf(payload)` | `POST /forecast/whatif` | `ApiWhatIfResult` (predicted, baseline, delta, SHAP) |
-| `getFeatures()` | `GET /features` | `{ features[], total }` |
-| `getRequiredFeatures()` | `GET /features/required` | `ApiFeatureInfo[]` |
-| `getFeatureImportance()` | `GET /features/importance` | `ApiFeatureImportance[]` |
-
-Every response is validated at runtime with Zod schemas from `validations/api.ts`. Invalid shapes throw `ApiError`.
+1. **Navbar** — Logo Castricity, tautan navigasi (Features, Cara Kerja), dan tombol Masuk/Daftar
+2. **Hero Section** — Judul besar "Forecast Electricity Demand" dengan latar animasi grid, dan tombol "Lihat Dashboard"
+3. **Fitur Utama** — Tiga kartu yang menjelaskan kemampuan platform:
+   - 📈 **AI-Powered Forecasts** — Prediksi permintaan harian dan mingguan
+   - 🛡️ **Anomaly Detection** — Identifikasi otomatis pola konsumsi anomali
+   - 🧠 **Explainable AI** — Skenario bagaimana-jika dan analisis faktor penyebab
+4. **Footer** — Tautan produk dan informasi versi
 
 ---
 
-## 6. Feature Modules
+## 5. Dashboard Operasional
 
-### 6.1 Landing Page (`/`)
+Dashboard adalah halaman utama setelah masuk. Halaman ini menyajikan gambaran lengkap kondisi jaringan listrik secara real-time.
 
-The public marketing page. No authentication required.
+### Komponen Dashboard
 
-```mermaid
-graph LR
-    A[Navbar] --> B[Hero Section]
-    B --> C[Features Grid]
-    C --> D[Footer]
-```
+#### 5.1 Topbar (Bilah Atas)
 
-- **Navbar** — Session-aware. Shows "Masuk / Daftar" for guests, "Pergi Dashboard" for authenticated users.
-- **Hero** — Animated `ShapeGrid` background, CTA button linking to `/dashboard`.
-- **Features** — Three cards: AI-Powered Forecasts, Anomaly Detection, Explainable AI.
-- **Footer** — Product links + version badge.
+Di bagian atas dashboard, Anda akan menemukan:
 
-### 6.2 Operations Dashboard (`/dashboard`)
+- **Breadcrumb** — Menunjukkan posisi Anda saat ini: `Operations › Dashboard`
+- **Pemilih Wilayah** — Dropdown untuk memilih wilayah yang ingin dipantau:
 
-The main control room. Orchestrated by [DashboardView](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/components/features/dashboard/dashboard-view.tsx).
+| Kode | Wilayah |
+|------|---------|
+| SYS-00 | System total (seluruh jaringan) |
+| ZN-NTH | Northern Zone |
+| ZN-MTR | Metro / Capital |
+| ZN-CST | Coastal Belt |
+| ZN-INL | Inland Plains |
 
-**State managed by DashboardView:**
+- **Jam Langsung** — Menampilkan waktu terkini, diperbarui setiap 30 detik
+- **Tombol Refresh** — Klik ikon ↻ untuk memperbarui data secara manual
 
-| State | Type | Purpose |
-|-------|------|---------|
-| `regionId` | `string` | Selected region (sys, north, metro, coast, inland) |
-| `futureHours` | `ForecastHorizon` | 24 / 48 / 72 / 168 hours |
-| `brush` | `[number, number]` | Normalized range for chart zoom |
-| `explainPt` | `ExplainerPoint \| null` | Point selected for XAI explanation |
-| `range` | `DateRange` | Calendar date filter |
-| `tweaks` | `Tweaks` | UI preferences (accent, density, bands, error format) |
+#### 5.2 Kartu Metrik Utama (Hero Metrics)
 
-**Data pipeline:**
+Dua kartu besar di bagian atas:
 
-```mermaid
-flowchart LR
-    A["useDashboardData hook"] -->|"Promise.all"| B["getHistorical()"]
-    A --> C["getFuture(days)"]
-    A --> D["getAnomalies()"]
-    A --> E["getMetrics(test)"]
-    B --> F["DashboardView state"]
-    C --> F
-    D --> F
-    E --> F
-    F --> G["HeroMetrics"]
-    F --> H["AnomalyStrip"]
-    F --> I["ValidationCard + Chart"]
-    F --> J["Explainer panel"]
-```
+| Kartu | Isi |
+|-------|-----|
+| **Puncak Permintaan Besok** | Prediksi puncak permintaan (MW) untuk 24 jam ke depan, termasuk rentang kepercayaan P10–P90 dan grafik mini (sparkline) |
+| **Akurasi Peramalan · MAPE** | Mean Absolute Percentage Error — semakin rendah semakin baik |
 
-**Sub-components:**
+#### 5.3 Strip Anomali
 
-| Component | Purpose |
-|-----------|---------|
-| `DashboardTopbar` | Region selector, live clock, refresh button |
-| `HeroMetrics` | Peak demand tile + MAPE accuracy tile |
-| `MetricTile` | Single KPI card with sparkline support |
-| `AnomalyStrip` | Horizontal scrollable anomaly event badges |
-| `ValidationCard` | Actual vs. predicted chart with date picker + brush |
-| `ValidationChart` | Hand-rolled SVG time series (not Recharts) |
-| `ForecastCard` | Future prediction chart with confidence bands |
-| `ForecastChart` | Hand-rolled SVG forecast visualization |
-| `Explainer` | XAI factor breakdown panel |
-| `MetricsRow` | MAPE / RMSE / MAE / Bias / Hit row |
+Baris horizontal yang menampilkan anomali terbaru sebagai badge berwarna:
+- 🔴 **Critical** — Deviasi sangat besar (contoh: gelombang panas)
+- 🟠 **Warning** — Deviasi sedang (contoh: penurunan tenaga surya)
+- 🔵 **Info** — Deviasi ringan
 
-Auto-refresh is configured at **60-second intervals** via `useDashboardData`.
+**Klik salah satu badge** untuk membuka panel penjelasan faktor penyebab anomali.
 
-### 6.3 Multi-Horizon Forecast (`/forecast`)
+#### 5.4 Kartu Validasi (Actual vs. Predicted)
 
-Orchestrated by [ForecastView](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/components/features/forecast/forecast-view.tsx).
+Grafik utama yang menampilkan perbandingan antara **permintaan aktual** dan **prediksi model**:
 
-**Workflow:**
+- **Pemilih Tanggal** — Pilih rentang tanggal yang ingin dilihat menggunakan kalender
+- **Brush (Zoom)** — Gunakan penggeser di bawah grafik untuk memperbesar area tertentu
+- **Mode Galat** — Toggle antara tampilan galat absolut (MW) atau persentase (%)
+- **Klik titik data** — Menampilkan panel penjelasan (Explainer) untuk titik tersebut
 
-```mermaid
-flowchart TD
-    A["User selects horizon"] -->|"7d / 30d / 90d / 180d / 1y / 2y / custom"| B["getFuture(days)"]
-    B --> C["MultiHorizonChart (Recharts)"]
-    C -->|"Click a day"| D["Selected date → WhatIfPanel"]
-    D --> E["User adjusts: temp, rainfall, holiday"]
-    E -->|"POST /forecast/whatif"| F["Backend runs Prophet + LightGBM"]
-    F --> G["Returns: predicted, baseline, delta, SHAP contributions"]
-    G --> H["Display result cards + SHAP waterfall bars"]
-```
+#### 5.5 Panel Penjelasan (Explainer)
 
-**What-If Panel parameters:**
+Saat Anda mengklik titik data pada grafik atau badge anomali, panel ini muncul dan menampilkan:
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `target_date` | Date | Day to simulate |
-| `avg_temp` | number (°C) | Average temperature |
-| `rainfall` | number (mm) | Rainfall amount |
-| `is_holiday` | boolean | National holiday flag |
+- **Judul** — Jenis analisis (rincian faktor peramalan / pendorong peramalan)
+- **Deskripsi** — Penjelasan singkat tentang deviasi
+- **Faktor Kontribusi** — Daftar faktor yang memengaruhi prediksi (contoh: suhu, hari kerja, jam, kejadian khusus), ditampilkan sebagai bar horizontal yang menunjukkan kontribusi masing-masing faktor
 
-The response includes SHAP contribution factors displayed as horizontal waterfall bars, showing each feature's positive/negative impact on the prediction.
+### Pembaruan Otomatis
 
-### 6.4 Anomaly Center (`/anomaly-center`)
-
-Orchestrated by [AnomalyCenterView](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/components/features/anomaly-center/anomaly-center-view.tsx).
-
-**Workflow:**
-
-```mermaid
-flowchart TD
-    A["Load anomalies via useDashboardData"] --> B["Summary tiles: Total / Critical / Warning / Info"]
-    B --> C["Paginated table (10 per page)"]
-    C -->|"Click row"| D["Detail Dialog"]
-    D --> E["Actual vs Predicted + Delta"]
-    D --> F["Contributing factors waterfall"]
-
-    G["Severity filter"] --> C
-    H["Time window: 24h / 3d / 7d / 30d"] --> A
-```
-
-**Severity levels:**
-- 🔴 **Critical** — Major demand deviations (e.g., heatwave events)
-- 🟠 **Warning** — Moderate anomalies (e.g., solar generation drops)
-- 🔵 **Info** — Minor deviations for awareness
-
-Each anomaly entry contains: severity, title, asset, timestamp, actual value, predicted value, deviation percentage, and Isolation Forest score.
-
-### 6.5 Feature Drivers (`/feature-drivers`)
-
-Orchestrated by [FeatureDriversView](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/components/features/feature-drivers/feature-drivers-view.tsx).
-
-**Workflow:**
-
-```mermaid
-flowchart TD
-    A["useFeatureDrivers hook"] -->|"Promise.all"| B["getFeatures()"]
-    A --> C["getFeatureImportance()"]
-    B --> D["Feature catalog table"]
-    C --> E["SHAP importance bar chart"]
-    D --> F["Search + category filter"]
-```
-
-**Feature categories:**
-
-| Category | Badge Color | Examples |
-|----------|------------|---------|
-| Temporal | Purple | hour_of_day, day_of_week |
-| Lag | Cyan | demand_lag_1d, demand_lag_7d |
-| Rolling | Green | rolling_mean_7d, rolling_std_3d |
-| Exogenous | Orange | avg_temp, rainfall, solar_irradiance |
-| Categorical | Red | is_holiday, is_weekend |
-
-Features are sorted by SHAP importance. The table shows: name, category badge, description, SHAP value bar, and whether it accepts user input.
+Dashboard secara otomatis memperbarui data setiap **60 detik**. Indikator hijau berkedip (🟢) di topbar menunjukkan koneksi aktif. Jika koneksi terputus, status akan berubah menjadi "Terputus".
 
 ---
 
-## 7. Component Architecture
+## 6. Forecast (Peramalan Multi-Horizon)
 
-### Layered Component Pattern
+Halaman Forecast memungkinkan Anda melihat proyeksi permintaan listrik untuk periode yang lebih panjang dan menjalankan simulasi skenario.
 
-```mermaid
-graph TD
-    A["Route Page (app/...)"] -->|renders| B["*-view.tsx (Orchestrator)"]
-    B -->|composes| C["Feature sub-components"]
-    C -->|uses| D["shadcn/ui primitives"]
-    B -->|calls| E["Custom hooks"]
-    E -->|calls| F["lib/api.ts"]
-    F -->|validates with| G["validations/*.ts"]
-    F -->|returns| H["types/*.ts"]
+### 6.1 Mengatur Horizon Peramalan
+
+Di bagian atas halaman, Anda dapat memilih jangka waktu peramalan:
+
+| Preset | Periode |
+|--------|---------|
+| 7 hari | Satu minggu ke depan |
+| 30 hari | Satu bulan ke depan |
+| 90 hari | Tiga bulan ke depan |
+| 180 hari | Enam bulan ke depan |
+| 1 tahun | Satu tahun ke depan |
+| 2 tahun | Dua tahun ke depan |
+| Kustom | Masukkan jumlah hari secara manual |
+
+Anda juga dapat mengaktifkan/menonaktifkan **Pita Keyakinan** (confidence band) — area berwarna di sekitar garis prediksi yang menunjukkan rentang ketidakpastian.
+
+### 6.2 Kartu Ringkasan
+
+Tiga kartu di bawah pengaturan menampilkan:
+
+| Kartu | Keterangan |
+|-------|------------|
+| **Puncak (MW)** | Nilai prediksi tertinggi dalam horizon |
+| **Rata-rata (MW)** | Rata-rata prediksi selama horizon |
+| **Lembah (MW)** | Nilai prediksi terendah dalam horizon |
+
+### 6.3 Grafik Trajektori Peramalan
+
+Grafik interaktif yang menampilkan garis prediksi beserta pita keyakinan (jika diaktifkan).
+
+- **Arahkan kursor** ke titik data untuk melihat nilai prediksi harian
+- **Klik satu titik** untuk mengunci tanggal tersebut dan memuatnya ke panel Bagaimana-Jika
+
+> [!IMPORTANT]
+> Peramalan dimulai dari hari setelah set pelatihan berakhir, **bukan dari hari ini**. Tanggal awal ditampilkan di bawah judul grafik.
+
+### 6.4 Panel Skenario Bagaimana-Jika (What-If)
+
+Panel ini memungkinkan Anda mensimulasikan dampak perubahan kondisi terhadap permintaan listrik. Anda dapat mengatur:
+
+| Parameter | Cara Mengisi | Contoh |
+|-----------|-------------|--------|
+| **Tanggal Target** | Klik ikon kalender untuk memilih tanggal | 15 Jun 2026 |
+| **Suhu Rata-rata (°C)** | Ketik angka suhu rata-rata harian | 28.5 |
+| **Curah Hujan (mm)** | Ketik angka curah hujan harian | 12.4 |
+| **Hari Libur Nasional** | Toggle Ya/Tidak | Ya |
+
+Setelah mengisi parameter, klik **"Jalankan Skenario"**.
+
+#### Hasil Simulasi
+
+Setelah simulasi dijalankan, Anda akan melihat:
+
+1. **Permintaan Terprediksi** — Total permintaan yang diprediksi (MW)
+2. **Acuan Dasar** — Prediksi dasar dari model Prophet (MW)
+3. **Delta** — Selisih dari acuan dasar (positif = lebih tinggi, negatif = lebih rendah)
+4. **Kontribusi SHAP** — Grafik bar horizontal yang menunjukkan seberapa besar masing-masing faktor memengaruhi prediksi:
+   - Bar **ke kanan** (biru) = faktor meningkatkan permintaan
+   - Bar **ke kiri** (merah) = faktor menurunkan permintaan
+
+> [!TIP]
+> Coba ubah suhu menjadi sangat tinggi (misal 38°C) untuk melihat dampak gelombang panas terhadap prediksi permintaan. Bandingkan juga dampak hari libur vs. hari kerja.
+
+---
+
+## 7. Anomaly Center (Pusat Anomali)
+
+Halaman ini menampilkan semua titik permintaan yang terdeteksi sebagai anomali oleh model Isolation Forest.
+
+### 7.1 Filter dan Kontrol
+
+| Kontrol | Fungsi |
+|---------|--------|
+| **Jendela Waktu** | Pilih rentang data: 24 jam, 3 hari, 7 hari, atau 30 hari terakhir |
+| **Filter Tingkat** | Tampilkan semua anomali, atau filter berdasarkan: Critical / Warning / Info |
+| **Tombol Perbarui** | Klik untuk memuat ulang data anomali terbaru |
+
+### 7.2 Kartu Ringkasan
+
+Empat kartu di bagian atas menampilkan jumlah anomali berdasarkan tingkat keparahan:
+
+| Kartu | Warna | Keterangan |
+|-------|-------|------------|
+| Total | Putih | Jumlah seluruh anomali dalam jendela waktu |
+| Critical | 🔴 Merah | Anomali kritis — deviasi sangat besar yang memerlukan tindakan segera |
+| Warning | 🟠 Oranye | Anomali peringatan — deviasi sedang yang perlu diperhatikan |
+| Info | 🔵 Biru | Anomali informasi — deviasi ringan untuk kesadaran |
+
+### 7.3 Tabel Anomali
+
+Tabel utama menampilkan daftar anomali dengan kolom:
+
+| Kolom | Keterangan |
+|-------|------------|
+| **#** | Nomor urut |
+| **Tingkat** | Badge warna (critical / warning / info) |
+| **Judul** | Deskripsi singkat anomali |
+| **Aset** | Bagian jaringan yang terpengaruh |
+| **Waktu** | Kapan anomali terjadi |
+| **Δ (MW)** | Selisih antara aktual dan prediksi (merah = di atas, hijau = di bawah) |
+| **Aktual** | Nilai permintaan aktual (MW) |
+| **Prediksi** | Nilai yang diprediksi model (MW) |
+
+Tabel menggunakan **paginasi** — 10 entri per halaman. Gunakan tombol "Sebelumnya" dan "Berikutnya" untuk navigasi.
+
+### 7.4 Detail Anomali
+
+**Klik baris mana pun** di tabel untuk membuka dialog detail yang menampilkan:
+
+1. **Badge Tingkat** dan **Judul** anomali
+2. **Waktu** dan **Aset** yang terdampak
+3. **Tiga kartu nilai**:
+   - Actual — Permintaan yang sebenarnya terjadi
+   - Predicted — Prediksi model
+   - Delta — Selisih (warna merah jika di atas, hijau jika di bawah prediksi)
+4. **Deskripsi** — Penjelasan naratif tentang penyebab anomali
+5. **Faktor Kontribusi** — Bar horizontal yang menunjukkan kontribusi masing-masing faktor (suhu, kelembapan, tutupan awan, kecepatan angin, dll.)
+
+---
+
+## 8. Feature Drivers (Pendorong Fitur)
+
+Halaman ini menampilkan semua fitur (variabel) yang digunakan oleh model prediksi, beserta seberapa penting masing-masing fitur dalam memengaruhi hasil prediksi.
+
+### 8.1 Kartu Ringkasan
+
+| Kartu | Keterangan |
+|-------|------------|
+| **Total fitur** | Jumlah seluruh fitur yang digunakan model |
+| **Input pengguna** | Jumlah fitur yang dapat dimasukkan pengguna (contoh: suhu, curah hujan) |
+| **Kategori** | Jumlah kategori fitur yang berbeda |
+
+### 8.2 Grafik Kepentingan Fitur (SHAP)
+
+Grafik bar horizontal yang menampilkan **rata-rata |SHAP value|** untuk setiap fitur. Semakin panjang bar, semakin besar pengaruh fitur tersebut terhadap prediksi model.
+
+> [!NOTE]
+> **SHAP (SHapley Additive exPlanations)** adalah metode untuk menjelaskan kontribusi setiap fitur terhadap prediksi individual. Nilai SHAP yang tinggi berarti fitur tersebut memiliki pengaruh besar terhadap hasil prediksi.
+
+### 8.3 Katalog Fitur
+
+Tabel yang menampilkan seluruh fitur dengan kolom:
+
+| Kolom | Keterangan |
+|-------|------------|
+| **#** | Nomor urut (diurutkan berdasarkan kepentingan) |
+| **Nama fitur** | Nama teknis fitur |
+| **Kategori** | Jenis fitur (lihat tabel di bawah) |
+| **Deskripsi** | Penjelasan singkat tentang fitur |
+| **SHAP** | Nilai kepentingan + bar visual |
+| **Input** | Apakah fitur ini dapat dimasukkan pengguna (Ya/—) |
+
+### Kategori Fitur
+
+| Kategori | Warna Badge | Contoh | Penjelasan |
+|----------|-------------|--------|------------|
+| **Temporal** | 🟣 Ungu | jam, hari, bulan | Fitur yang berkaitan dengan waktu |
+| **Lag** | 🔵 Biru | permintaan 1 hari lalu | Nilai historis permintaan sebelumnya |
+| **Rolling** | 🟢 Hijau | rata-rata 7 hari | Statistik bergerak dari data historis |
+| **Eksogen** | 🟠 Oranye | suhu, curah hujan | Faktor eksternal (cuaca, dll.) |
+| **Kategorikal** | 🔴 Merah | hari libur, akhir pekan | Penanda kategori Ya/Tidak |
+
+### Pencarian dan Filter
+
+- **Kotak Pencarian** — Ketik nama atau deskripsi fitur untuk mencari
+- **Dropdown Kategori** — Filter berdasarkan kategori (Temporal, Lag, Rolling, Eksogen, Kategorikal)
+
+---
+
+## 9. Alur Kerja Pengguna
+
+### Alur Umum Penggunaan Harian
+
+```
+┌─────────────┐     ┌──────────────────┐     ┌───────────────────┐
+│  1. MASUK   │────▶│  2. CEK DASHBOARD │────▶│ 3. PERIKSA ANOMALI│
+│  Sign In    │     │  Metrik & Validasi│     │  Ada peringatan?  │
+└─────────────┘     └──────────────────┘     └───────────────────┘
+                                                       │
+                              ┌─────────────────────────┘
+                              ▼
+                    ┌───────────────────┐     ┌───────────────────┐
+                    │ 4. LIHAT FORECAST │────▶│ 5. SIMULASI       │
+                    │ Proyeksi ke depan │     │ Skenario What-If  │
+                    └───────────────────┘     └───────────────────┘
 ```
 
-### Adding a New Feature
+### Skenario: Mempersiapkan Beban Puncak Musim Panas
 
-Follow this pipeline:
+1. **Buka Dashboard** — Periksa kartu "Puncak Permintaan Besok"
+2. **Cek Anomaly Center** — Apakah ada anomali critical terkait gelombang panas?
+3. **Buka Forecast** — Pilih horizon 30 hari, periksa tren kenaikan
+4. **Jalankan What-If** — Atur suhu ke 38°C, lihat dampaknya pada permintaan
+5. **Periksa Feature Drivers** — Konfirmasi bahwa suhu memang faktor paling berpengaruh
 
-1. **`src/types/<feature>.ts`** — Define TypeScript interfaces
-2. **`src/validations/<feature>.ts`** — Create Zod schemas
-3. **`src/lib/<feature>/`** — Data helpers and domain logic
-4. **`src/hooks/use-<feature>.ts`** — React hook for data fetching
-5. **`src/components/features/<feature>/`** — UI components with `*-view.tsx` orchestrator
-6. **`src/app/(dashboard)/<feature>/page.tsx`** — Route page
-7. **`src/app/api/<feature>/route.ts`** — API proxy route (if needed)
-8. **Update sidebar** — Add nav item in `sidebar.tsx`
+### Skenario: Menganalisis Anomali yang Terdeteksi
 
----
-
-## 8. Custom Hooks
-
-| Hook | File | Purpose |
-|------|------|---------|
-| `useDashboardData` | [use-dashboard-data.ts](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/hooks/use-dashboard-data.ts) | Fetches history, future, anomalies, metrics in parallel. Auto-refreshes every 60s. Returns `{ data, loading, refreshing, error, refresh }`. |
-| `useFeatureDrivers` | [use-feature-drivers.ts](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/hooks/use-feature-drivers.ts) | Fetches feature list + SHAP importance. Returns `{ data, loading, refreshing, error, refresh }`. |
-| `useTweaks` | [use-tweaks.ts](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/hooks/use-tweaks.ts) | Dashboard UI preferences (accent color, density, show bands, error format). Validated via Zod. |
-| `useLiveClock` | [use-live-clock.ts](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/hooks/use-live-clock.ts) | Returns a `Date` that updates every 30 seconds for the topbar clock. |
-| `useElementSize` | [use-element-size.ts](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/hooks/use-element-size.ts) | `ResizeObserver`-based hook for responsive SVG chart sizing. |
-| `useIsMobile` | [use-mobile.ts](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/hooks/use-mobile.ts) | Media query hook (`<768px`). |
+1. **Buka Anomaly Center** — Filter ke "Critical" saja
+2. **Klik anomali** — Baca deskripsi dan faktor kontribusi
+3. **Pergi ke Dashboard** — Lihat konteks anomali pada grafik Actual vs. Predicted
+4. **Jalankan What-If** — Simulasikan kondisi yang sama untuk memvalidasi temuan
 
 ---
 
-## 9. Type System & Validation
+## 10. Glosarium
 
-### Core Domain Types (`types/dashboard.ts`)
-
-```typescript
-HistoryPoint  { t: Date, actual: number, predicted: number, anomaly?: AnomalyKey }
-ForecastPoint { t: Date, predicted: number, p10: number, p90: number }
-Metrics       { mae, rmse, mape, bias, hit }
-AnomalyEntry  { sev: Severity, title, asset, timeAgo, point: ExplainerPoint }
-ExplainerData { title, sev, desc, factors: ExplainerFactor[] }
-Tweaks        { accent, density, showBand, showHistoryOnForecast, errorAsPct }
-```
-
-### Zod Validation Pipeline
-
-```mermaid
-flowchart LR
-    A["Backend JSON response"] -->|"fetchJson()"| B["Zod schema.safeParse()"]
-    B -->|success| C["Typed data returned"]
-    B -->|failure| D["ApiError thrown with details"]
-```
-
-Every API response is validated at runtime. This catches backend contract changes early. Schemas live in `validations/api.ts` and mirror the `types/api.ts` interfaces.
+| Istilah | Penjelasan |
+|---------|------------|
+| **MW (Megawatt)** | Satuan daya listrik. 1 MW = 1.000 kW, cukup untuk menyalakan ~750 rumah |
+| **MAPE** | Mean Absolute Percentage Error — rata-rata galat prediksi dalam persen. Semakin rendah semakin akurat |
+| **RMSE** | Root Mean Square Error — akar rata-rata galat kuadrat. Sensitif terhadap galat besar |
+| **MAE** | Mean Absolute Error — rata-rata galat absolut dalam MW |
+| **R²** | Koefisien determinasi — seberapa baik model menjelaskan variasi data (0–1, semakin tinggi semakin baik) |
+| **Bias** | Rata-rata selisih antara aktual dan prediksi. Positif = model cenderung under-predict |
+| **SHAP** | SHapley Additive exPlanations — metode untuk menjelaskan kontribusi setiap fitur terhadap prediksi |
+| **Prophet** | Model peramalan time series dari Meta/Facebook, digunakan sebagai komponen dasar |
+| **LightGBM** | Model machine learning gradient boosting, digunakan untuk menangkap pola non-linear |
+| **Isolation Forest** | Algoritma deteksi anomali yang mengidentifikasi titik data yang tidak biasa |
+| **P10 / P90** | Persentil ke-10 dan ke-90, membentuk rentang kepercayaan 80% dari prediksi |
+| **Pita Keyakinan** | Area berwarna di sekitar garis prediksi yang menunjukkan rentang ketidakpastian |
+| **Horizon** | Jangka waktu peramalan ke depan (contoh: 7 hari, 30 hari) |
+| **What-If** | Simulasi skenario hipotesis — "bagaimana jika suhu naik 5°C?" |
+| **Eksogen** | Faktor eksternal di luar data historis permintaan (contoh: cuaca, hari libur) |
 
 ---
 
-## 10. Theming & Design System
-
-The app uses a **single dark "control-room" palette** defined in [globals.css](file:///c:/Rei/UC/FindIT/Castricity-Frontend/src/app/globals.css).
-
-### Custom Design Tokens
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--accent-cyan` | `#06B6D4` | Primary accent, forecast lines |
-| `--accent-green` | `#10B981` | Positive indicators, accuracy |
-| `--accent-orange` | `#F59E0B` | Warning severity |
-| `--accent-red` | `#EF4444` | Critical severity, negative deltas |
-| `--accent-purple` | `#8B5CF6` | XAI / feature drivers accent |
-| `--text-secondary` | `#94A3B8` | Secondary text |
-| `--text-muted` | `#64748B` | Muted labels |
-| `--text-faint` | `#475569` | Barely visible text |
-
-### CSS Utility Classes
-
-| Class | Purpose |
-|-------|---------|
-| `.mono` | Monospace font for numbers/codes |
-| `.pulse-dot` | Animated green pulsing dot (live indicator) |
-| `.pulse-dot-red` | Red variant for alerts |
-
-### Usage Convention
-
-Use Tailwind utilities with tokens: `text-accent-cyan`, `bg-accent-red/15`, `text-text-muted` — never inline hex values.
-
----
-
-## 11. Navigation Map
-
-```mermaid
-graph TD
-    ROOT["/"] -->|"Lihat Dashboard"| DASH["/dashboard"]
-    ROOT -->|"Masuk"| SIGNIN["/sign-in"]
-    ROOT -->|"Daftar"| SIGNUP["/sign-up"]
-
-    SIGNIN -->|"success"| DASH
-    SIGNUP -->|"success"| DASH
-
-    subgraph Dashboard Group ["(dashboard) layout — shared sidebar"]
-        DASH
-        FCST["/forecast"]
-        ANOM["/anomaly-center"]
-        FEAT["/feature-drivers"]
-        GUIDE["/guidebook"]
-    end
-
-    DASH ---|sidebar| FCST
-    DASH ---|sidebar| ANOM
-    DASH ---|sidebar| FEAT
-    DASH ---|sidebar| GUIDE
-```
-
-### Sidebar Navigation Structure
-
-| Group | Item | Route | Icon |
-|-------|------|-------|------|
-| Operasi | Dashboard | `/dashboard` | LayoutGrid |
-| Operasi | Forecast | `/forecast` | LineChart |
-| Operasi | Anomaly center | `/anomaly-center` | AlertTriangle |
-| Data | Feature drivers | `/feature-drivers` | Workflow |
-| Sistem | Panduan | `/guidebook` | BookOpen |
-
----
-
-> **Last updated:** 2026-05-14 · **Version:** v2.4.1 · **Build:** a17f3
+> **Castricity** · Panduan Pengguna · v2.4.1

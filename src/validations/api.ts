@@ -63,3 +63,24 @@ export const apiWhatIfResultSchema = z.object({
 });
 
 export type WhatIfPayloadInput = z.infer<typeof whatIfPayloadSchema>;
+
+export const apiFeatureInfoSchema = z.object({
+  name: z.string(),
+  category: z.string(),
+  description: z.string(),
+  user_input: z.boolean(),
+});
+
+export const apiFeaturesResponseSchema = z.object({
+  features: z.array(apiFeatureInfoSchema),
+  total: z.number(),
+});
+
+export const apiRequiredFeaturesSchema = z.array(apiFeatureInfoSchema);
+
+export const apiFeatureImportanceSchema = z.object({
+  feature: z.string(),
+  importance: z.number(),
+});
+
+export const apiFeatureImportanceListSchema = z.array(apiFeatureImportanceSchema);

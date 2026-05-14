@@ -47,3 +47,20 @@ export interface ApiWhatIfResult {
   delta: number;
   factors?: ExplainerFactor[];
 }
+
+export interface ApiFeatureInfo {
+  name: string;
+  category: string;
+  description: string;
+  user_input: boolean;
+}
+
+export interface ApiFeaturesResponse {
+  features: ApiFeatureInfo[];
+  total: number;
+}
+
+export interface ApiFeatureImportance {
+  feature: string;
+  importance: number;
+}

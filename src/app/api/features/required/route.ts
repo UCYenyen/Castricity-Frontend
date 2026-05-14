@@ -3,5 +3,5 @@ import { proxyToBackend } from "@/lib/backend-proxy";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  return proxyToBackend("/metrics");
+  return proxyToBackend("/features/required");
 }

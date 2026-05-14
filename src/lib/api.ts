@@ -1,9 +1,12 @@
 import { z } from "zod";
 import {
   apiAnomaliesSchema,
+  apiFeatureImportanceListSchema,
+  apiFeaturesResponseSchema,
   apiFutureSchema,
   apiHistoricalSchema,
   apiMetricsSchema,
+  apiRequiredFeaturesSchema,
   apiWhatIfResultSchema,
   whatIfPayloadSchema,
   type WhatIfPayloadInput,
@@ -15,7 +18,13 @@ import type {
   HistoryPoint,
   Metrics,
 } from "@/types/dashboard";
-import type { ApiAnomaly, ApiWhatIfResult } from "@/types/api";
+import type {
+  ApiAnomaly,
+  ApiFeatureImportance,
+  ApiFeatureInfo,
+  ApiFeaturesResponse,
+  ApiWhatIfResult,
+} from "@/types/api";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -136,6 +145,26 @@ export async function runWhatIf(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function getFeatures(
+  signal?: AbortSignal
+): Promise<ApiFeaturesResponse> {
+  return fetchJson("/features", apiFeaturesResponseSchema, { signal });
+}
+
+export async function getRequiredFeatures(
+  signal?: AbortSignal
+): Promise<ApiFeatureInfo[]> {
+  return fetchJson("/features/required", apiRequiredFeaturesSchema, { signal });
+}
+
+export async function getFeatureImportance(
+  signal?: AbortSignal
+): Promise<ApiFeatureImportance[]> {
+  return fetchJson("/features/importance", apiFeatureImportanceListSchema, {
     signal,
   });
 }

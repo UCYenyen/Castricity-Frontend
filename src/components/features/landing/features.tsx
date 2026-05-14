@@ -84,7 +84,7 @@ export function Features() {
                   <style>{`@keyframes dash { to { stroke-dashoffset: 4.3; } }`}</style>
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-white font-mono" style={{ animation: 'count-pulse 2s ease-out' }}>98.4<span className="text-accent-cyan">%</span></span>
+                  <span className="text-3xl font-bold text-white font-mono" style={{ animation: 'count-pulse 2s ease-out' }}>96,35<span className="text-accent-cyan">%</span></span>
                 </div>
               </div>
               <h3 className="text-lg font-bold text-white mb-2">Tingkat Akurasi</h3>

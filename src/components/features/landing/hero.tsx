@@ -33,6 +33,7 @@ export function Hero() {
 
   return (
     <section className="relative pt-24 pb-32 sm:pt-32 sm:pb-40 min-h-200 flex items-center bg-[#050a15]">
+
       {/* Background Flowing Energy Waves & Particles */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Animated Particles (client-only to avoid hydration mismatch) */}
@@ -108,7 +109,7 @@ export function Hero() {
         <div className="relative w-full max-w-5xl mx-auto h-[400px] sm:h-[500px] group perspective-1000">
           {/* Rotating wireframe globe */}
           <div className="absolute inset-0 flex items-center justify-center rounded-2xl transform transition-transform duration-700 group-hover:scale-[1.02]">
-            <div className="relative w-full h-full max-w-4xl drop-shadow-[0_0_30px_rgba(6,182,212,0.5)]">
+            <div className="relative w-full h-full max-w-3xl drop-shadow-[0_0_30px_rgba(6,182,212,0.5)]">
               <RotatingEarth width={800} height={600} className="w-full h-full" />
             </div>
           </div>
@@ -119,9 +120,9 @@ export function Hero() {
             style={{ animation: 'float-slow 6s ease-in-out infinite' }}
           >
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Akurasi Sistem</div>
-            <div className="text-2xl font-bold text-white font-mono">98.48%</div>
+            <div className="text-2xl font-bold text-white font-mono">96,35%</div>
             <div className="w-full bg-accent-cyan/20 h-1 mt-2 rounded-full overflow-hidden">
-              <div className="bg-accent-cyan h-full w-[98.48%]" />
+              <div className="bg-accent-cyan h-full w-[96,35%]" />
             </div>
           </div>
 
@@ -134,7 +135,6 @@ export function Hero() {
               <span className="pulse-dot" style={{ width: 8, height: 8 }} />
               1,250+
             </div>
-            <div className="text-[10px] text-text-faint mt-1">Diperbarui setiap jam</div>
           </div>
 
           <div 
@@ -165,7 +165,7 @@ export function Hero() {
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 relative z-20 animate-reveal-up delay-200">
           <Link href="/dashboard">
             <Button size="lg" className="h-14 px-10 text-base font-bold bg-accent-cyan text-[#050a15] hover:bg-accent-cyan-2 hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-all w-full sm:w-auto rounded-full">
-              Buka Command Center <ArrowRight className="ml-2 size-5" />
+              Mulai Sekarang <ArrowRight className="ml-2 size-5" />
             </Button>
           </Link>
           <Link href="#features">

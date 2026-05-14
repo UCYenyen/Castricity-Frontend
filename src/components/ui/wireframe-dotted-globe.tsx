@@ -322,9 +322,6 @@ export default function RotatingEarth({
         className="w-full h-auto rounded-2xl"
         style={{ maxWidth: "100%", height: "auto" }}
       />
-      <div className="pointer-events-none absolute bottom-3 left-3 text-[10px] uppercase tracking-[0.14em] text-text-faint mono px-2 py-1 rounded-md bg-popover/60 border border-border">
-        Drag to rotate · Releases back to Indonesia
-      </div>
     </div>
   );
 }

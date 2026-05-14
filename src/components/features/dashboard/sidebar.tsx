@@ -38,24 +38,22 @@ const NAV: NavGroup[] = [
     label: "Operations",
     items: [
       { id: "dash", label: "Dashboard", icon: LayoutGrid, href: "/dashboard" },
-      { id: "fcst", label: "Live forecast", icon: LineChart, href: "/live" },
-      { id: "anom", label: "Anomaly center", icon: AlertTriangle, count: 3 },
-      { id: "lab", label: "Explainability lab", icon: FlaskConical },
+      { id: "fcst", label: "Forecast", icon: LineChart, href: "/forecast" },
+      { id: "anom", label: "Anomaly center", icon: AlertTriangle, count: 3, href:"/anomaly-center" },
     ],
   },
   {
     label: "Data",
     items: [
-      { id: "hist", label: "Historical data", icon: Archive },
-      { id: "feat", label: "Feature drivers", icon: Workflow },
-      { id: "mod", label: "Models", icon: Box },
+      { id: "hist", label: "Historical data", icon: Archive, href:"/historical-data" },
+      { id: "feat", label: "Feature drivers", icon: Workflow, href:"/feature-drivers" },
     ],
   },
   {
     label: "System",
     items: [
-      { id: "set", label: "Settings", icon: Settings },
-      { id: "doc", label: "Runbook", icon: BookOpen },
+      { id: "set", label: "Settings", href:"/settings",icon: Settings },
+      { id: "doc", label: "Guidebook", href:"/guidebook" ,icon: BookOpen },
     ],
   },
 ];

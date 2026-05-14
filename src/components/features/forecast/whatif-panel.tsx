@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { FlaskConical, Loader2 } from "lucide-react";
 
-export function LiveWhatIfPanel() {
+export function WhatIfPanel() {
   const [temp, setTemp] = useState(28);
   const [rain, setRain] = useState(0);
   const [holiday, setHoliday] = useState(false);

@@ -55,7 +55,10 @@ export default function RotatingEarth({
     const containerHeight = Math.min(height, window.innerHeight - 100);
     const radius = Math.min(containerWidth, containerHeight) / 2.5;
 
-    const dpr = window.devicePixelRatio || 1;
+    // Cap DPR to 1.5 — on Windows DPR can be 1.25/1.5/1.75/2 which inflates the
+    // canvas backbuffer 1.5-4× without visible gain at this size; Mac handles it
+    // because of Metal-backed Skia, Windows often falls back to slower paths.
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     canvas.width = containerWidth * dpr;
     canvas.height = containerHeight * dpr;
     canvas.style.width = `${containerWidth}px`;
@@ -126,9 +129,19 @@ export default function RotatingEarth({
       return dots;
     };
 
-    const allDots: { lng: number; lat: number }[] = [];
+    // Each dot carries its precomputed unit-sphere xyz so per-frame back-face
+    // culling is one dot-product, no trig.
+    interface PreparedDot {
+      lng: number;
+      lat: number;
+      ux: number;
+      uy: number;
+      uz: number;
+    }
+    const allDots: PreparedDot[] = [];
     let landFeatures: GeoCollection | null = null;
     let indonesia: CountryFeature | null = null;
+    const DEG = Math.PI / 180;
 
     const render = () => {
       context.clearRect(0, 0, containerWidth, containerHeight);
@@ -161,21 +174,31 @@ export default function RotatingEarth({
         context.lineWidth = 1 * scaleFactor;
         context.stroke();
 
-        allDots.forEach((dot) => {
+        // Back-face cull dots first: compute current view direction from the
+        // rotation, then only project dots whose unit-sphere position is on
+        // the front hemisphere (dot product > 0). Cuts ~half of projection
+        // calls per frame for free.
+        const [rotLng, rotLat] = projection.rotate();
+        const centerLngRad = -rotLng * DEG;
+        const centerLatRad = -rotLat * DEG;
+        const cosCenterLat = Math.cos(centerLatRad);
+        const vx = cosCenterLat * Math.cos(centerLngRad);
+        const vy = cosCenterLat * Math.sin(centerLngRad);
+        const vz = Math.sin(centerLatRad);
+
+        const dotsPath = new Path2D();
+        const r = 1.2 * scaleFactor;
+        const tau = 2 * Math.PI;
+        for (let i = 0; i < allDots.length; i++) {
+          const dot = allDots[i];
+          if (dot.ux * vx + dot.uy * vy + dot.uz * vz <= 0) continue;
           const projected = projection([dot.lng, dot.lat]);
-          if (
-            projected &&
-            projected[0] >= 0 &&
-            projected[0] <= containerWidth &&
-            projected[1] >= 0 &&
-            projected[1] <= containerHeight
-          ) {
-            context.beginPath();
-            context.arc(projected[0], projected[1], 1.2 * scaleFactor, 0, 2 * Math.PI);
-            context.fillStyle = "rgba(165,243,252,0.85)";
-            context.fill();
-          }
-        });
+          if (!projected) continue;
+          dotsPath.moveTo(projected[0] + r, projected[1]);
+          dotsPath.arc(projected[0], projected[1], r, 0, tau);
+        }
+        context.fillStyle = "rgba(165,243,252,0.85)";
+        context.fill(dotsPath);
 
         // Highlight Indonesia with a solid fill, drawn last so it stays on top.
         if (indonesia) {
@@ -219,7 +242,18 @@ export default function RotatingEarth({
 
         landFeatures.features.forEach((feature) => {
           const dots = generateDotsInPolygon(feature, 16);
-          dots.forEach(([lng, lat]) => allDots.push({ lng, lat }));
+          dots.forEach(([lng, lat]) => {
+            const latRad = lat * DEG;
+            const lngRad = lng * DEG;
+            const cosLat = Math.cos(latRad);
+            allDots.push({
+              lng,
+              lat,
+              ux: cosLat * Math.cos(lngRad),
+              uy: cosLat * Math.sin(lngRad),
+              uz: Math.sin(latRad),
+            });
+          });
         });
 
         render();

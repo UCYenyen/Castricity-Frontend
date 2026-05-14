@@ -44,9 +44,6 @@ export function Features() {
             
             {/* Card 1: Why Castricity (Span 2) */}
             <div className="md:col-span-2 glass-card p-8 md:p-10 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                <Server size={120} />
-              </div>
               <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20">
                   <ShieldAlert size={24} />

@@ -56,10 +56,10 @@ export function SignUpForm() {
     setLoading(false);
 
     if (error) {
-      toast.error(error.message ?? "Sign up failed");
+      toast.error(error.message ?? "Gagal membuat akun");
       return;
     }
-    toast.success("Account created");
+    toast.success("Akun berhasil dibuat");
     router.push("/dashboard");
     router.refresh();
   }
@@ -67,15 +67,15 @@ export function SignUpForm() {
   return (
     <Card className="w-full max-w-md border-border/60">
       <CardHeader>
-        <CardTitle className="text-xl">Create account</CardTitle>
+        <CardTitle className="text-xl">Buat akun</CardTitle>
         <CardDescription className="text-(--text-secondary)">
-          Spin up a Castricity workspace in seconds.
+          Buat ruang kerja Castricity dalam hitungan detik.
         </CardDescription>
       </CardHeader>
       <form onSubmit={onSubmit} noValidate>
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Nama</Label>
             <Input
               id="name"
               type="text"
@@ -105,7 +105,7 @@ export function SignUpForm() {
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Kata Sandi</Label>
             <Input
               id="password"
               type="password"
@@ -122,12 +122,12 @@ export function SignUpForm() {
         </CardContent>
         <CardFooter className="flex flex-col gap-3 mt-2">
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? <Spinner className="size-4" /> : "Create account"}
+            {loading ? <Spinner className="size-4" /> : "Buat akun"}
           </Button>
           <p className="text-xs text-(--text-muted)">
-            Already have an account?{" "}
+            Sudah punya akun?{" "}
             <Link href="/sign-in" className="text-accent-cyan hover:underline">
-              Sign in
+              Masuk
             </Link>
           </p>
         </CardFooter>

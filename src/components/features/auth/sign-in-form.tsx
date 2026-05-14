@@ -50,10 +50,10 @@ export function SignInForm() {
     setLoading(false);
 
     if (error) {
-      toast.error(error.message ?? "Sign in failed");
+      toast.error(error.message ?? "Gagal masuk");
       return;
     }
-    toast.success("Welcome back");
+    toast.success("Selamat datang kembali");
     router.push("/dashboard");
     router.refresh();
   }
@@ -61,9 +61,9 @@ export function SignInForm() {
   return (
     <Card className="w-full max-w-md border-border/60">
       <CardHeader>
-        <CardTitle className="text-xl">Sign in</CardTitle>
+        <CardTitle className="text-xl">Masuk</CardTitle>
         <CardDescription className="text-(--text-secondary)">
-          Access the Castricity control room.
+          Akses ruang kontrol Castricity.
         </CardDescription>
       </CardHeader>
       <form onSubmit={onSubmit} noValidate>
@@ -84,7 +84,7 @@ export function SignInForm() {
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Kata Sandi</Label>
             <Input
               id="password"
               type="password"
@@ -101,12 +101,12 @@ export function SignInForm() {
         </CardContent>
         <CardFooter className="flex flex-col gap-3 mt-2">
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? <Spinner className="size-4" /> : "Sign in"}
+            {loading ? <Spinner className="size-4" /> : "Masuk"}
           </Button>
           <p className="text-xs text-(--text-muted)">
-            Don&apos;t have an account?{" "}
+            Belum punya akun?{" "}
             <Link href="/sign-up" className="text-accent-cyan hover:underline">
-              Create one
+              Buat akun
             </Link>
           </p>
         </CardFooter>

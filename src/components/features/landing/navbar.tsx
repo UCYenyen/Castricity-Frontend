@@ -32,7 +32,7 @@ export function Navbar() {
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
           <Link href="#features" className="hover:text-foreground transition-colors">Features</Link>
-          <Link href="#how-it-works" className="hover:text-foreground transition-colors">How it works</Link>
+          <Link href="#how-it-works" className="hover:text-foreground transition-colors">Cara Kerja</Link>
         </div>
 
         <div className="flex items-center gap-4">
@@ -41,19 +41,19 @@ export function Navbar() {
           ) : isAuthed ? (
             <Link href="/dashboard">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                Go to Dashboard
+                Pergi Dashboard
               </Button>
             </Link>
           ) : (
             <>
               <Link href="/sign-in">
                 <Button variant="ghost" className="hidden sm:inline-flex">
-                  Sign In
+                  Masuk
                 </Button>
               </Link>
               <Link href="/sign-up">
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  Sign Up
+                  Daftar
                 </Button>
               </Link>
             </>

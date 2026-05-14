@@ -19,7 +19,7 @@ export function LegendItem({ checked, onChange, swatch, label, disabled }: Legen
       <Checkbox
         checked={checked}
         disabled={disabled}
-        onCheckedChange={(v: boolean | "indeterminate") => onChange(!!v)}
+        onCheckedChange={(v) => onChange(!!v)}
         className="size-3.5"
       />
       {swatch}

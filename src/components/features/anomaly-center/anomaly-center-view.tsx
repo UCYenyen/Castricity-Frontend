@@ -73,7 +73,7 @@ export function AnomalyCenterView() {
     <div className="flex flex-col gap-4 p-4 sm:p-6 lg:p-8">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Anomaly Center</h1>
+          <h1 className="text-xl font-semibold text-foreground">Anomali Center</h1>
           <p className="text-sm text-text-muted">
             Setiap titik permintaan anomali yang ditandai oleh model, ditampilkan dalam konteks.
           </p>

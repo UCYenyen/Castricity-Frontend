@@ -1,11 +1,12 @@
 "use client";
 import {
   LayoutGrid, LineChart, AlertTriangle, FlaskConical,
-  Archive, Workflow, Box, Settings, BookOpen,
+  Archive, Workflow, Box, Settings, BookOpen, LogOut,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import type { ComponentType, ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, type ComponentType, type ReactNode } from "react";
+import { signOut } from "@/lib/auth-client";
 import {
   Sidebar,
   SidebarContent,
@@ -39,7 +40,7 @@ const NAV: NavGroup[] = [
     items: [
       { id: "dash", label: "Dashboard", icon: LayoutGrid, href: "/dashboard" },
       { id: "fcst", label: "Forecast", icon: LineChart, href: "/forecast" },
-      { id: "anom", label: "Anomaly center", icon: AlertTriangle, count: 3, href:"/anomaly-center" },
+      { id: "anom", label: "Anomali center", icon: AlertTriangle, href:"/anomaly-center" },
     ],
   },
   {
@@ -58,6 +59,19 @@ const NAV: NavGroup[] = [
 
 export function DashboardSidebar(): ReactNode {
   const pathname = usePathname();
+  const router = useRouter();
+  const [signingOut, setSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    try {
+      await signOut();
+      router.push("/sign-in");
+      router.refresh();
+    } finally {
+      setSigningOut(false);
+    }
+  };
 
   return (
     <Sidebar>
@@ -130,6 +144,19 @@ export function DashboardSidebar(): ReactNode {
       </SidebarContent>
 
       <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={handleSignOut}
+              disabled={signingOut}
+              tooltip="Keluar"
+              className="text-[13px] font-medium text-accent-red hover:text-accent-red"
+            >
+              <LogOut size={14} strokeWidth={1.6} />
+              <span>{signingOut ? "Keluar…" : "Keluar"}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <div className="px-2 py-1.5 text-[11px] text-muted-foreground">
           <div className="mb-1.5 flex items-center gap-2">
             <span className="pulse-dot" />

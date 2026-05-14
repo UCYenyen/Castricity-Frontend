@@ -51,7 +51,7 @@ const NAV: NavGroup[] = [
   {
     label: "Sistem",
     items: [
-      { id: "doc", label: "Panduan", href:"/guidebook" ,icon: BookOpen },
+      { id: "doc", label: "Panduan", href:"https://canva.link/fi3qjsudjzmx3vu", icon: BookOpen },
     ],
   },
 ];
@@ -104,7 +104,7 @@ export function DashboardSidebar(): ReactNode {
                         className="text-[13px] font-medium"
                       >
                         {item.href ? (
-                          <Link href={item.href}>
+                          <Link href={item.href} target={item.label === "Panduan" ? "_blank" : undefined}>
                             <Icon size={14} strokeWidth={1.6} />
                             <span>{item.label}</span>
                           </Link>

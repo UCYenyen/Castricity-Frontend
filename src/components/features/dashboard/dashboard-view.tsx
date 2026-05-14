@@ -110,9 +110,6 @@ export function DashboardView() {
             <h1 className="text-2xl font-semibold tracking-tight m-0">
               Dasbor operasional
             </h1>
-            <div className="text-[13px] mt-1 text-muted-foreground">
-              Horizon peramalan {futureHours}j
-            </div>
           </div>
           <div className="mono text-[11px] flex items-center gap-1.5 text-muted-foreground">
             <span className="pulse-dot" />

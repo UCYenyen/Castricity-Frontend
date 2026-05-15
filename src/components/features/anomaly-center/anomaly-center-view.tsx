@@ -35,13 +35,14 @@ const HISTORY_OPTIONS = [
   { v: 72, label: "3 hari terakhir" },
   { v: 168, label: "7 hari terakhir" },
   { v: 720, label: "30 hari terakhir" },
+  { v: "all", label: "Semua waktu" },
 ] as const;
 
 const ITEMS_PER_PAGE = 10;
 
 export function AnomalyCenterView() {
   const now = useLiveClock(30_000);
-  const [historyHours, setHistoryHours] = useState<number>(168);
+  const [historyHours, setHistoryHours] = useState<number | null>(168);
   const [sev, setSev] = useState<SevFilter>("all");
   const [selected, setSelected] = useState<AnomalyEntry | null>(null);
   const [page, setPage] = useState(1);
@@ -51,13 +52,14 @@ export function AnomalyCenterView() {
   }, [sev, historyHours]);
 
   const { data, loading, refreshing, error, refresh } = useDashboardData({
-    historyHours,
+    historyHours: historyHours === null ? undefined : historyHours,
     futureDays: 1,
     autoTickMs: 0,
   });
 
   const timeFilteredAnomalies = useMemo(() => {
     if (!data?.anomalies) return [];
+    if (historyHours === null) return data.anomalies;
     // Calculate cutoff based on hours (approximate with Date.now())
     // Alternatively, since historical data might end yesterday, we can filter based on the most recent anomaly date or just Date.now().
     // Using Date.now() works well if the dataset dates are real-time, but if the data is historical (e.g. ends in 2024),
@@ -101,7 +103,7 @@ export function AnomalyCenterView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={String(historyHours)} onValueChange={(v) => setHistoryHours(Number(v))}>
+          <Select value={historyHours === null ? "all" : String(historyHours)} onValueChange={(v) => setHistoryHours(v === "all" ? null : Number(v))}>
             <SelectTrigger className="h-9 w-36 text-xs">
               <SelectValue />
             </SelectTrigger>

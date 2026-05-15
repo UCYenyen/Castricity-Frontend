@@ -60,12 +60,9 @@ export function AnomalyCenterView() {
   const timeFilteredAnomalies = useMemo(() => {
     if (!data?.anomalies) return [];
     if (historyHours === null) return data.anomalies;
-    // Calculate cutoff based on hours (approximate with Date.now())
-    // Alternatively, since historical data might end yesterday, we can filter based on the most recent anomaly date or just Date.now().
-    // Using Date.now() works well if the dataset dates are real-time, but if the data is historical (e.g. ends in 2024),
-    // Date.now() will filter out EVERYTHING. Let's find the max date in the history or anomalies to be safe.
-    const maxT = data.anomalies.reduce((max, a) => Math.max(max, a.point.t.getTime()), 0);
-    const cutoffMs = maxT ? maxT - (historyHours * 3600_000) : Date.now() - (historyHours * 3600_000);
+    
+    // The filter strictly applies to the actual live time (Date.now())
+    const cutoffMs = Date.now() - (historyHours * 3600_000);
     return data.anomalies.filter((a) => a.point.t.getTime() >= cutoffMs);
   }, [data?.anomalies, historyHours]);
 
@@ -138,7 +135,7 @@ export function AnomalyCenterView() {
       </header>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <SummaryTile label="Total" value={data?.anomalies.length ?? 0} accent="text-foreground" />
+        <SummaryTile label="Total" value={timeFilteredAnomalies.length} accent="text-foreground" />
         <SummaryTile label="Critical" value={counts.critical} accent="text-accent-red" />
         <SummaryTile label="Warning" value={counts.warning} accent="text-accent-orange" />
         <SummaryTile label="Info" value={counts.info} accent="text-accent-cyan" />

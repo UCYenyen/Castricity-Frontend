@@ -42,7 +42,7 @@ const ITEMS_PER_PAGE = 10;
 
 export function AnomalyCenterView() {
   const now = useLiveClock(30_000);
-  const [historyHours, setHistoryHours] = useState<number | null>(168);
+  const [historyHours, setHistoryHours] = useState<number | null>(null);
   const [sev, setSev] = useState<SevFilter>("all");
   const [selected, setSelected] = useState<AnomalyEntry | null>(null);
   const [page, setPage] = useState(1);

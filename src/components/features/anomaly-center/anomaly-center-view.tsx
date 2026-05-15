@@ -56,9 +56,20 @@ export function AnomalyCenterView() {
     autoTickMs: 0,
   });
 
+  const timeFilteredAnomalies = useMemo(() => {
+    if (!data?.anomalies) return [];
+    // Calculate cutoff based on hours (approximate with Date.now())
+    // Alternatively, since historical data might end yesterday, we can filter based on the most recent anomaly date or just Date.now().
+    // Using Date.now() works well if the dataset dates are real-time, but if the data is historical (e.g. ends in 2024),
+    // Date.now() will filter out EVERYTHING. Let's find the max date in the history or anomalies to be safe.
+    const maxT = data.anomalies.reduce((max, a) => Math.max(max, a.point.t.getTime()), 0);
+    const cutoffMs = maxT ? maxT - (historyHours * 3600_000) : Date.now() - (historyHours * 3600_000);
+    return data.anomalies.filter((a) => a.point.t.getTime() >= cutoffMs);
+  }, [data?.anomalies, historyHours]);
+
   const filtered = useMemo(
-    () => (data?.anomalies ?? []).filter((a) => (sev === "all" ? true : a.sev === sev)),
-    [data, sev]
+    () => timeFilteredAnomalies.filter((a) => (sev === "all" ? true : a.sev === sev)),
+    [timeFilteredAnomalies, sev]
   );
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
@@ -69,9 +80,9 @@ export function AnomalyCenterView() {
 
   const counts = useMemo(() => {
     const out = { critical: 0, warning: 0, info: 0 };
-    for (const a of data?.anomalies ?? []) out[a.sev]++;
+    for (const a of timeFilteredAnomalies) out[a.sev]++;
     return out;
-  }, [data]);
+  }, [timeFilteredAnomalies]);
 
   return (
     <div className="flex flex-col min-w-0">
